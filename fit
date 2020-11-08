@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# --------------------------------------------------------------------------------
+# check required
+# --------------------------------------------------------------------------------
+declare -a requireds=(
+  git
+  fzf
+)
+
+for required in "${requireds[@]}"; do
+  if ! type "$required" >/dev/null 2>&1; then
+    echo "$required not found. it is required to work"
+    exit 1
+  fi
+done
+
+# --------------------------------------------------------------------------------
+# load scripts
+# --------------------------------------------------------------------------------
+
+script_source="${BASH_SOURCE:-$0}"
+script_dir="$(cd "$(dirname "$script_source")" >/dev/null 2>&1 && pwd)"
+
+for file in $(find "$script_dir" -name "*.sh" -type f); do
+  echo "$file"
+done
+
+echo "--------------------------------------------------------------------------------"
+
+while IFS= read -r -d "" file; do
+  # shellcheck disable=1090
+  . "${file}"
+done < <(find "$script_dir" -name "*.sh" -type f -print0)
+
+# tig
+# m view-main           Show main view
+# d view-diff           Show diff view
+# l view-log            Show log view
+# t view-tree           Show tree view
+# f view-blob           Show blob view
+# b view-blame          Show blame view
+# r view-refs           Show refs view
+# s view-status         Show status view
+# c view-stage          Show stage view
+# y view-stash          Show stash view
+# g view-grep           Show grep view
+# p view-pager          Show pager view
+# h view-help           Show help view
