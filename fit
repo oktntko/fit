@@ -22,18 +22,14 @@ done
 script_source="${BASH_SOURCE:-$0}"
 script_dir="$(cd "$(dirname "$script_source")" >/dev/null 2>&1 && pwd)"
 
-for file in $(find "$script_dir" -name "*.sh" -type f); do
-  echo "$file"
-done
-
-echo "--------------------------------------------------------------------------------"
-
 while IFS= read -r -d "" file; do
   # shellcheck disable=1090
   . "${file}"
 done < <(find "$script_dir" -name "*.sh" -type f -print0)
 
+# --------------------------------------------------------------------------------
 # tig
+# --------------------------------------------------------------------------------
 # m view-main           Show main view
 # d view-diff           Show diff view
 # l view-log            Show log view
@@ -47,3 +43,13 @@ done < <(find "$script_dir" -name "*.sh" -type f -print0)
 # g view-grep           Show grep view
 # p view-pager          Show pager view
 # h view-help           Show help view
+
+# --------------------------------------------------------------------------------
+# tortoise git
+# --------------------------------------------------------------------------------
+# log
+# commit
+# diff
+# revert
+# refs
+# branches
