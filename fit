@@ -28,6 +28,73 @@ while IFS= read -r -d "" file; do
 done < <(find "$script_dir" -name "*.sh" -type f -print0)
 
 # --------------------------------------------------------------------------------
+# run fit
+# --------------------------------------------------------------------------------
+
+# quotes mult-word parameters in order to make a command copy-paste with ease
+quote-single-param() {
+  if [ -z "$1" ] || [[ "$1" = *' '* ]]; then
+    if [[ "$1" = *"'"* ]]; then
+      echo "\"$1\""
+    else
+      echo "'$1'"
+    fi
+  else
+    echo "$1"
+  fi
+}
+
+# quotes a list of params using `"$@"`
+# MISSING: support for anything escapable (`\n`, `\t`, etc.?)
+# MISSING: support quotes in params (e.g. quoting `'a' "b'd"`)
+quote-params() {
+  local rest=""
+  for arg in "$@"; do
+    if [ -z "$rest" ]; then
+      printf "%s" "$(quote-single-param "$arg")"
+      rest=true
+    else
+      printf " %s" "$(quote-single-param "$arg")"
+    fi
+  done
+}
+
+fit-info() {
+  echo "info" "$@"
+}
+
+fit-hoge() {
+  echo "hoge" "$@"
+}
+
+fit-fuga() {
+  echo "fuga" "$@"
+}
+
+fit() {
+  local func_name
+  func_name="$1"
+
+  if [ "$#" = '0' ]; then # 引数なしの時は info
+    func_name="info"
+  else
+    shift
+  fi
+
+  local params func
+  params="$(quote-params "$@")"
+  func="fit-${func_name}"
+
+  if type "$func" >/dev/null 2>&1; then
+    eval "$func $params"
+  else
+    echo "\`$func_name\` not found"
+  fi
+}
+
+fit "$@"
+
+# --------------------------------------------------------------------------------
 # tig
 # --------------------------------------------------------------------------------
 # m view-main           Show main view
