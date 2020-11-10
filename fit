@@ -28,6 +28,13 @@ while IFS= read -r -d "" file; do
 done < <(find "$script_dir" -name "*.sh" -type f -print0)
 
 # --------------------------------------------------------------------------------
+# core modules
+# --------------------------------------------------------------------------------
+fit::is-inside-work-tree() {
+  git rev-parse --is-inside-work-tree >/dev/null
+}
+
+# --------------------------------------------------------------------------------
 # run fit
 # --------------------------------------------------------------------------------
 
@@ -72,6 +79,9 @@ fit-fuga() {
 }
 
 fit() {
+  # work tree にいないときは終了
+  fit::is-inside-work-tree || return 1
+
   local func_name
   func_name="$1"
 
@@ -83,7 +93,7 @@ fit() {
 
   local params func
   params="$(quote-params "$@")"
-  func="fit-${func_name}"
+  func="fit::${func_name}"
 
   if type "$func" >/dev/null 2>&1; then
     eval "$func $params"
@@ -91,8 +101,6 @@ fit() {
     echo "\`$func_name\` not found"
   fi
 }
-
-fit "$@"
 
 # --------------------------------------------------------------------------------
 # tig
