@@ -38,34 +38,6 @@ fit::is-inside-work-tree() {
 # run fit
 # --------------------------------------------------------------------------------
 
-# quotes mult-word parameters in order to make a command copy-paste with ease
-quote-single-param() {
-  if [ -z "$1" ] || [[ "$1" = *' '* ]]; then
-    if [[ "$1" = *"'"* ]]; then
-      echo "\"$1\""
-    else
-      echo "'$1'"
-    fi
-  else
-    echo "$1"
-  fi
-}
-
-# quotes a list of params using `"$@"`
-# MISSING: support for anything escapable (`\n`, `\t`, etc.?)
-# MISSING: support quotes in params (e.g. quoting `'a' "b'd"`)
-quote-params() {
-  local rest=""
-  for arg in "$@"; do
-    if [ -z "$rest" ]; then
-      printf "%s" "$(quote-single-param "$arg")"
-      rest=true
-    else
-      printf " %s" "$(quote-single-param "$arg")"
-    fi
-  done
-}
-
 fit-info() {
   echo "info" "$@"
 }
@@ -92,7 +64,7 @@ fit() {
   fi
 
   local params func
-  params="$(quote-params "$@")"
+  params="$(fit::utils::quote-params "$@")"
   func="fit::${func_name}"
 
   if type "$func" >/dev/null 2>&1; then
