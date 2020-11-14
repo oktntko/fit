@@ -27,7 +27,8 @@ fit::add() {
   git add -p \$file < /dev/tty > /dev/tty
 "
 
-  local files
+  local files reload
+  reload="reload:git -c color.ui=always -c status.relativePaths=true status -su"
   files=$(git -c color.ui=always -c status.relativePaths=true status -su)
   # --------------------------------------------------------------------------------
   #  M fit
@@ -44,7 +45,7 @@ fit::add() {
         --cycle \
         --border=rounded \
         --preview "$preview" \
-        --bind "ctrl-p:execute($add_p)"
+        --bind "ctrl-p:execute($add_p)+$reload"
   )
   # [[ -n "$files" ]] && echo "$files" | tr '\n' '\0' | xargs -0 -I% git add % && git status -su && return
 }
