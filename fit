@@ -38,18 +38,6 @@ fit::is-inside-work-tree() {
 # run fit
 # --------------------------------------------------------------------------------
 
-fit::info() {
-  echo "info" "$@"
-}
-
-fit::hoge() {
-  echo "hoge" "$@"
-}
-
-fit::fuga() {
-  echo "fuga" "$@"
-}
-
 fit() {
   # work tree にいないときは終了
   fit::is-inside-work-tree || return 1

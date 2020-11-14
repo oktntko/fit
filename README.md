@@ -11,7 +11,7 @@
 ## 📝 Usage
 
 ### action
-
+aaaaaaaaa
 1. `fit commit`
    -> staging と unstaging を選択できる
    -> Enter でコミット
