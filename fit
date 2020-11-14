@@ -38,15 +38,15 @@ fit::is-inside-work-tree() {
 # run fit
 # --------------------------------------------------------------------------------
 
-fit-info() {
+fit::info() {
   echo "info" "$@"
 }
 
-fit-hoge() {
+fit::hoge() {
   echo "hoge" "$@"
 }
 
-fit-fuga() {
+fit::fuga() {
   echo "fuga" "$@"
 }
 
