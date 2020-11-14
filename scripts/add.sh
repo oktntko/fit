@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-
-fit::add::preview() {
-  echo "$1" "$2"
-}
-
 fit::add() {
   # 引数がある場合は git add を実行して終了
   [[ $# -ne 0 ]] && git add "$@" && git status -su && return
@@ -24,6 +19,14 @@ fit::add() {
   echo \$s \$file
 "
 
+  local add_p
+  add_p="
+  local s file
+  s={1}
+  file={2..}
+  git add -p \$file < /dev/tty > /dev/tty
+"
+
   local files
   files=$(git -c color.ui=always -c status.relativePaths=true status -su)
   # --------------------------------------------------------------------------------
@@ -41,6 +44,7 @@ fit::add() {
         --cycle \
         --border=rounded \
         --preview "$preview" \
+        --bind "ctrl-p:execute($add_p)"
   )
   # [[ -n "$files" ]] && echo "$files" | tr '\n' '\0' | xargs -0 -I% git add % && git status -su && return
 }
