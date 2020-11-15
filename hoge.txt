@@ -1,0 +1,69 @@
+unstaged
+hoge.txt
+unstaged
+hoge.txt.hoge.txt
+unstaged
+unstaged
+unstaged
+unstaged
+unstaged
+unstaged
+unstaged
+unstaged
+unstaged
+unstaged
+staged
+staged
+unstaged
+staged
+unstaged
+unstaged
+reset 
+reset 
+add hoge.txt
+add hoge.txt.hoge.txt
+add hoge.txt
+reset hoge.txt
+reset scripts/status.sh
+reset hoge.txt.hoge.txt
+add hoge.txt
+add scripts/status.sh
+add scripts/add.sh
+add hoge.txt.hoge.txt
+add scripts/unstage.sh
+add test.txt
+reset hoge.txt
+add hoge.txt
+reset hoge.txt
+reset scripts/add.sh
+reset hoge.txt.hoge.txt
+reset scripts/unstage.sh
+reset scripts/status.sh
+add scripts/status.sh
+reset scripts/status.sh
+reset test.txt
+add scripts/add.sh
+add scripts/status.sh
+add hoge.txt
+add hoge.txt.hoge.txt
+reset hoge.txt
+add hoge.txt
+reset hoge.txt
+reset hoge.txt.hoge.txt
+reset scripts/add.sh
+reset scripts/status.sh
+add scripts/unstage.sh
+add test.txt
+reset test.txt
+reset scripts/unstage.sh
+add hoge.txt
+add hoge.txt.hoge.txt
+reset hoge.txt
+add hoge.txt
+reset hoge.txt
+reset hoge.txt.hoge.txt
+reset scripts/add.sh
+reset hoge.txt
+reset hoge.txt.hoge.txt
+reset scripts/add.sh
+add scripts/add.sh
