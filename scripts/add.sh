@@ -106,26 +106,34 @@
 #       •   U = updated but unmerged
 #       •   ? = untracked
 
+# Exit Status
+# 0      Normal exit
+# 1      No match
+# 2      Error
+# 130    Interrupted with CTRL-C or ESC
 fit::add::preview() {
   local s file
   s=$1
   file=$2
 
-  echo "$s" "$file"
-  if [[ -f $file && $s != '??' ]]; then # ファイルで
+  echo "$s" "$file" # TODO: 色付け
+
+  if [[ -f $file && $s != '??' ]]; then # tracked file => git diff.
     git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
-  elif [[ -f $file && $s == '??' ]]; then
+  elif [[ -f $file && $s == '??' ]]; then # untracked file => show preview.
     eval "${FIT_PREVIEW_FILE} $file"
-  elif [[ -d $file ]]; then
+  elif [[ -d $file ]]; then # directory => show tree.
     eval "${FIT_PREVIEW_DIRECTORY} $file"
-  elif [[ ! -e $file ]]; then
+  elif [[ ! -e $file ]]; then # deleted file => git diff.
     git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
   fi
+  # TODO: [R]renameに対応できていないと思われる
 }
 
 fit::add::status() {
   git -c color.ui=always -c status.relativePaths=true status -su
 }
+
 fit::add-u() {
   git add -u
 }
@@ -184,6 +192,6 @@ fit::add() {
         --bind "ctrl-a:execute(fit add-a)+$reload" \
         --bind "ctrl-p:execute(fit add-p {1} {2..})+$reload"
   )
-  echo $files
-  # [[ -n "$files" ]] && echo "$files" | tr '\n' '\0' | xargs -0 -I% git add % && git status -su && return
+  [[ -n "$files" ]] && echo "$files" | awk -v 'ORS= ' '{ print $2 }' | xargs git add && fit add::status && return
+  # TODO: D ファイルが含まれているとエラー
 }
