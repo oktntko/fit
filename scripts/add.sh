@@ -106,6 +106,46 @@
 #       •   U = updated but unmerged
 #       •   ? = untracked
 
+fit::add::preview() {
+  local s file
+  s=$1
+  file=$2
+
+  echo "$s" "$file"
+  if [[ -f $file && $s != '??' ]]; then # ファイルで
+    git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
+  elif [[ -f $file && $s == '??' ]]; then
+    eval "${FIT_PREVIEW_FILE} $file"
+  elif [[ -d $file ]]; then
+    eval "${FIT_PREVIEW_DIRECTORY} $file"
+  elif [[ ! -e $file ]]; then
+    git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
+  fi
+}
+
+fit::add::status() {
+  git -c color.ui=always -c status.relativePaths=true status -su
+}
+fit::add-u() {
+  git add -u
+}
+
+fit::add-a() {
+  git add -A
+}
+
+fit::add-p() {
+  local s file
+  s=$1
+  file=$2
+
+  # エディタを開く場合は </dev/tty >/dev/tty がないと
+  # Input is not from a terminal
+  # Output is not to a terminal
+  # が出て動きが止まる
+  git add -p "$file" </dev/tty >/dev/tty
+}
+
 fit::add() {
   # 引数がある場合は git add を実行して終了
   [[ $# -ne 0 ]] && git add "$@" && git status -su && return
@@ -119,50 +159,19 @@ fit::add() {
   ctrl+p     💬 -p, --patch     Interactively choose hunks of patch between the index and the work tree and add them to the index.
 
 '
-  # bat --color=always \$file
 
-  local preview
-  preview="
-  local s file
-  s={1}; file={2..}
-  if [[ \$s != '??' && -f \$file ]]; then # if tracked file then git diff.
-    git diff \$file | \${FIT_PAGER_DIFF}
-  elif [[ \$s == '??' && -f \$file ]]; then # if untracked file then show preview.
-    eval ${FIT_PREVIEW_FILE} \$file
-  elif [[ -d \$file ]]; then # if directory then show tree.
-    eval ${FIT_PREVIEW_DIRECTORY} \$file
-  else
-    echo 'not support preview'
-  fi
-"
-
-  local add_u add_a add_p
-  add_u="
-  local s file
-  s={1}; file={2..}
-  git add -u
-"
-  add_a="
-  local s file
-  s={1}; file={2..}
-  git add -A
-"
-  add_p="
-  local s file
-  s={1}; file={2..}
-  git add -p \$file </dev/tty >/dev/tty
-"
-
-  local files reload
-  reload="reload:git -c color.ui=always -c status.relativePaths=true status -su"
-  files=$(git -c color.ui=always -c status.relativePaths=true status -su)
   # --------------------------------------------------------------------------------
   #  M fit
   #  M scripts/add.sh
   # ?? memo.txt
   # --------------------------------------------------------------------------------
+
+  # --preview や --execute で実行するコマンドはPATHが通っていないと実行できない
+  # 例えば、nvm => NG だけど、nvm を使ってインストールした node => OK.
+  local files reload
+  reload="reload(fit add::status)"
   files=$(
-    echo "$files" |
+    fit add::status |
       fzf \
         --ansi \
         --header "$header" \
@@ -170,10 +179,11 @@ fit::add() {
         --multi \
         --cycle \
         --border=rounded \
-        --preview "$preview" \
-        --bind "ctrl-u:execute($add_u)+$reload" \
-        --bind "ctrl-a:execute($add_a)+$reload" \
-        --bind "ctrl-p:execute($add_p)+$reload"
+        --preview "fit add::preview {1} {2..}" \
+        --bind "ctrl-u:execute(fit add-u)+$reload" \
+        --bind "ctrl-a:execute(fit add-a)+$reload" \
+        --bind "ctrl-p:execute(fit add-p {1} {2..})+$reload"
   )
+  echo $files
   # [[ -n "$files" ]] && echo "$files" | tr '\n' '\0' | xargs -0 -I% git add % && git status -su && return
 }
