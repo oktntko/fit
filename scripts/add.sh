@@ -128,9 +128,9 @@ fit::add() {
   if [[ \$s != '??' && -f \$file ]]; then # if tracked file then git diff.
     git diff \$file | \${FIT_PAGER_DIFF}
   elif [[ \$s == '??' && -f \$file ]]; then # if untracked file then show preview.
-    bat --color=always \$file
+    eval ${FIT_PREVIEW_FILE} \$file
   elif [[ -d \$file ]]; then # if directory then show tree.
-    exa -l --color=always \$file
+    eval ${FIT_PREVIEW_DIRECTORY} \$file
   else
     echo 'not support preview'
   fi
