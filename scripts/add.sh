@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-
-
 fit::add-u() {
   git add -u
 }

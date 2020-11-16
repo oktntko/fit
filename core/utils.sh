@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# --------------------------------------------------------------------------------
+# core modules
+# --------------------------------------------------------------------------------
+fit::utils::is-inside-work-tree() {
+  git rev-parse --is-inside-work-tree >/dev/null
+}
+
 # quotes mult-word parameters in order to make a command copy-paste with ease
 fit::utils::quote-single-param() {
   if [ -z "$1" ] || [[ "$1" = *' '* ]]; then

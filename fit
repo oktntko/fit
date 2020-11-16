@@ -28,19 +28,12 @@ while IFS= read -r -d "" file; do
 done < <(find "$script_dir" -name "*.sh" -type f -print0)
 
 # --------------------------------------------------------------------------------
-# core modules
-# --------------------------------------------------------------------------------
-fit::is-inside-work-tree() {
-  git rev-parse --is-inside-work-tree >/dev/null
-}
-
-# --------------------------------------------------------------------------------
 # run fit
 # --------------------------------------------------------------------------------
 
 fit() {
   # work tree にいないときは終了
-  fit::is-inside-work-tree || return 1
+  fit::utils::is-inside-work-tree || return 1
 
   local func_name
   func_name="$1"

@@ -3,10 +3,14 @@
 fit::status() {
   local header
   header='🔹KeyBindings🔹
-  ctrl + s   git add/reset   👆stage/👇unstage selected file.
-  ctrl + u   git add -u       Update the index just where it already has an entry matching <pathspec>.
-  ctrl + a   git add -A       Update the index not only where the working tree has a file matching <pathspec> but also where the index already has an entry.
-  ctrl + p   git add -p       Interactively choose hunks of patch between the index and the work tree and add them to the index.
+  ctrl + s   git add/restore       | 👆stage/👇unstage selected file.
+
+  ctrl + u   git add -u, --update  | update index tracked files.
+  ctrl + a   git add -A, --all     | update index all files.
+  ctrl + p   git a/r -p, --patch   | stage by line not by file.
+
+🔸Operation fzf🔸
+  tab => toggle / alt + a => toggle-all
 
 '
 
@@ -27,21 +31,36 @@ fit::status() {
         --bind "ctrl-s:execute-silent(fit status::change {2..})+$reload" \
         --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
-        --bind "ctrl-p:execute(fit add-p {1} {2..})+$reload"
+        --bind "ctrl-p:execute(fit status::patch {2..})+$reload" \
+        --bind "alt-a:toggle-all"
   )
-  fit status::list
+  # status では何もしない
+  # [[ -n "$files" ]] && echo "$files" | fit status::list::extract | xargs fit status::change && git status && return
+  git status && return
 }
 
+# /*
+#
+# @return
+# --------------------------------------------------------------------------------
+#  M fit
+#  M scripts/add.sh
+# ?? memo.txt
+# --------------------------------------------------------------------------------
+# */
 fit::status::list() {
   git -c color.ui=always -c status.relativePaths=true status -su
-  # ex)
-  # --------------------------------------------------------------------------------
-  #  M fit
-  #  M scripts/add.sh
-  # ?? memo.txt
-  # --------------------------------------------------------------------------------
 }
 
+# /*
+# @return
+# --------------------------------------------------------------------------------
+# fit scripts/add.sh memo.txt
+# --------------------------------------------------------------------------------
+# */
+fit::status::list::extract() {
+  awk -v 'ORS= ' '{ print $2 }'
+}
 # M = modified
 # A = added
 # D = deleted
@@ -50,18 +69,41 @@ fit::status::list() {
 # U = updated but unmerged
 # ? = untracked
 
-fit::status::is-staged() {
+# /*
+# 引数のファイルのindexの状態を判定する
+# @param string file.
+# @return boolean true: is staging/ false: not staging.
+# */
+fit::status::is-staging() {
   git diff --name-only --cached | grep -qE ^"$1"$
 }
 
+# /*
+# 引数のファイルの stage/unstage を切り替える
+# @param string[] files.
+# */
 fit::status::change() {
+  for file in "$@"; do
+    if fit::status::is-staging "$file"; then
+      git restore --staged "$file"
+    else
+      git add -- "$file"
+    fi
+  done
+}
+
+# /*
+# git add/restore --patchの実行
+# @param string file.
+# */
+fit::status::patch() {
   local file
   file=$1
 
-  if fit::status::is-staged "$file"; then
-    git reset -- "$file"
+  if fit::status::is-staging "$file"; then
+    git restore -S -p "$file" </dev/tty >/dev/tty
   else
-    git add -- "$file"
+    git add -p "$file" </dev/tty >/dev/tty
   fi
 }
 
