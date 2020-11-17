@@ -36,5 +36,5 @@ fit::log::list::extract() {
 }
 
 fit::log::preview() {
-  [[ -n $1 ]] && git show "$1" --decorate --color=always
+  [[ -n $1 ]] && git show "$1" --decorate --color=always | eval "${FIT_PAGER_SHOW}"
 }
