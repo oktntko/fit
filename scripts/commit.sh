@@ -36,6 +36,6 @@ fit::commit() {
   if [[ $? == 0 ]]; then
     git commit "$@" && fit status::list return
   else
-    fit status::list return
+    fit status::list && return
   fi
 }
