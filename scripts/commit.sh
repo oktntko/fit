@@ -34,7 +34,7 @@ fit::commit() {
       --bind "alt-a:toggle-all"
 
   if [[ $? == 0 ]]; then
-    git commit "$@" && fit status::list return
+    git commit "$@" && return
   else
     fit status::list && return
   fi
