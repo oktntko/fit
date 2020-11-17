@@ -16,22 +16,24 @@ fit::commit() {
 
   # --preview や --execute で実行するコマンドはPATHが通っていないと実行できない
   # 例えば、nvm => NG だけど、nvm を使ってインストールした node => OK.
-  local reload
+  local reload files
   reload="reload(fit status::list)"
-  fit status::list |
-    fzf \
-      --ansi \
-      --header "$header" \
-      --layout=reverse \
-      --multi \
-      --cycle \
-      --border=rounded \
-      --preview "fit status::preview {1} {2..}" \
-      --bind "ctrl-s:execute-silent(fit status::change {2..})+$reload" \
-      --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
-      --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
-      --bind "ctrl-p:execute(fit status::patch {2..})+$reload" \
-      --bind "alt-a:toggle-all"
+  files=$(
+    fit status::list |
+      fzf \
+        --ansi \
+        --header "$header" \
+        --layout=reverse \
+        --multi \
+        --cycle \
+        --border=rounded \
+        --preview "fit status::preview {1} {2..}" \
+        --bind "ctrl-s:execute-silent(fit status::change {2..})+$reload" \
+        --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
+        --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
+        --bind "ctrl-p:execute(fit status::patch {2..})+$reload" \
+        --bind "alt-a:toggle-all"
+  )
 
   if [[ $? == 0 ]]; then
     git commit "$@" && return
