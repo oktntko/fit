@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# ファイル操作系
+# status
+# add/stage
+# restore/unstage
+# commit
 fit::status() {
   local header
   header='🔹KeyBindings🔹
@@ -75,7 +80,7 @@ fit::status::list::extract() {
 # @return boolean true: is staging/ false: not staging.
 # */
 fit::status::is-staging() {
-  git diff --name-only --cached | grep -qE ^"$1"$
+  git diff --name-only --staged | grep -qE ^"$1"$
 }
 
 # /*
