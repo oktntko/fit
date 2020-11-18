@@ -51,7 +51,7 @@ fit() {
   if type "$func" >/dev/null 2>&1; then
     eval "$func $params"
   else
-    echo "\`$func_name\` not found"
+    git $func_name "$@"
   fi
 }
 
