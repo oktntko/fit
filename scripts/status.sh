@@ -6,25 +6,56 @@
 # restore/unstage
 # commit
 fit::status() {
-  local header
-  header='🔹KeyBindings🔹
-  ctrl + s   git add/restore       | 👆stage/👇unstage selected file.
+  local mode
+  mode="status"
+  [[ $1 == "--add" || $1 == "-a" ]] && mode="add" && shift
+  [[ $1 == "--restore" || $1 == "-r" ]] && mode="restore" && shift
+  [[ $1 == "--commit" || $1 == "-c" ]] && mode="commit" && shift
 
-  ctrl + u   git add -u, --update  | update index tracked files.
-  ctrl + a   git add -A, --all     | update index all files.
-  ctrl + p   git a/r -p, --patch   | stage by line not by file.
+  # header のだし分け
+  local header
+  header="🔹KeyBindings🔹"
+  if [[ $mode == "add" ]]; then
+    header="${header}
+  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git add                       | 👆stage selected file."
+
+  elif [[ $mode == "restore" ]]; then
+    header="${header}
+  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git restore                   | 👇unstage selected file."
+
+  else
+    header="${header}
+  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git add/restore               | 👆stage/👇unstage selected file."
+
+  fi
+
+  header="${header}
+
+  ctrl + u  : update index tracked files.  |
+  ctrl + a  : update index all files.      |
+  ctrl + p  : select update index by line. |
 
 🔸Operation fzf🔸
   tab => toggle / alt + a => toggle-all
 
-'
+"
+
+  # add の場合 unstaging なファイルのみ/restore の場合 staging なファイルのみ表示
+  local s filter
+  if [[ $mode == "add" ]]; then
+    filter="--unstaging-only"
+
+  elif [[ $mode == "restore" ]]; then
+    filter="--staging-only"
+
+  fi
 
   # --preview や --execute で実行するコマンドはPATHが通っていないと実行できない
   # 例えば、nvm => NG だけど、nvm を使ってインストールした node => OK.
-  local reload
-  reload="reload(fit status::list)"
+  s="fit core::status ${filter}"
+  reload="reload(eval $s)"
   files=$(
-    fit status::list |
+    eval "$s" |
       fzf \
         --ansi \
         --header "$header" \
@@ -39,48 +70,19 @@ fit::status() {
         --bind "ctrl-p:execute(fit status::patch {2..})+$reload" \
         --bind "alt-a:toggle-all"
   )
-  # status では何もしない
-  # [[ -n "$files" ]] && echo "$files" | fit status::list::extract | xargs fit status::change && git status && return
+  if [[ $? == 0 ]]; then
+    if [[ $mode == "add" ]]; then
+      [[ -n "$files" ]] && echo "$files" | awk -v 'ORS= ' '{ print $2 }' | xargs git add
+
+    elif [[ $mode == "restore" ]]; then
+      [[ -n "$files" ]] && echo "$files" | awk -v 'ORS= ' '{ print $2 }' | xargs git restore --staged
+
+    elif [[ $mode == "commit" ]]; then
+      git commit "$@" && return
+    fi
+  fi
+
   git status && return
-}
-
-# /*
-#
-# @return
-# --------------------------------------------------------------------------------
-#  M fit
-#  M scripts/add.sh
-# ?? memo.txt
-# --------------------------------------------------------------------------------
-# */
-fit::status::list() {
-  git -c color.ui=always -c status.relativePaths=true status -su
-}
-
-# /*
-# @return
-# --------------------------------------------------------------------------------
-# fit scripts/add.sh memo.txt
-# --------------------------------------------------------------------------------
-# */
-fit::status::list::extract() {
-  awk -v 'ORS= ' '{ print $2 }'
-}
-# M = modified
-# A = added
-# D = deleted
-# R = renamed
-# C = copied
-# U = updated but unmerged
-# ? = untracked
-
-# /*
-# 引数のファイルのindexの状態を判定する
-# @param string file.
-# @return boolean true: is staging/ false: not staging.
-# */
-fit::status::is-staging() {
-  git diff --name-only --staged | grep -qE ^"$1"$
 }
 
 # /*
@@ -89,7 +91,7 @@ fit::status::is-staging() {
 # */
 fit::status::change() {
   for file in "$@"; do
-    if fit::status::is-staging "$file"; then
+    if fit::core::status::is-staging "$file"; then
       git restore --staged "$file"
     else
       git add -- "$file"
@@ -105,7 +107,7 @@ fit::status::patch() {
   local file
   file=$1
 
-  if fit::status::is-staging "$file"; then
+  if fit::core::status::is-staging "$file"; then
     git restore -S -p "$file" </dev/tty >/dev/tty
   else
     git add -p "$file" </dev/tty >/dev/tty

@@ -31,9 +31,11 @@ fit::core::status() {
     case $opt in
     --staging-only)
       filter=$(git diff --name-only --staged)
+      [[ -z ${filter} ]] && return
       ;;
     --unstaging-only)
       filter=$(git diff --name-only)
+      [[ -z ${filter} ]] && return
       ;;
     esac
     shift
