@@ -15,6 +15,7 @@ fit::restore() {
 # @param string[] files.
 # */
 fit::restore::worktree() {
+  # TODO: ファイルがstaging 状態だと利かない
   for file in "$@"; do
     git restore --worktree "$file"
   done

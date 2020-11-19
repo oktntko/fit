@@ -29,6 +29,7 @@ fit::status() {
 
   fi
 
+  # TODO: headerなにができればいいのか。
   header="${header}
 
   ctrl + u  : update index tracked files.  | ctrl + r  : restore file change
@@ -36,7 +37,7 @@ fit::status() {
   ctrl + p  : select update index by line. |
 
 🔸Operation fzf🔸
-  tab => toggle / alt + a => toggle-all
+  tab => toggle / alt + a => select-all / alt + s => toggle-all / alt + d => deselect-all
 
 "
 
@@ -64,12 +65,14 @@ fit::status() {
         --cycle \
         --border=rounded \
         --preview "fit status::preview {1} {2}" \
-        --bind "ctrl-s:execute-silent(fit status::change {2})+down+$reload" \
+        --bind "ctrl-s:execute-silent(fit status::change {+2})+down+$reload" \
         --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
         --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
-        --bind "ctrl-r:execute-silent(fit restore::worktree {2})+$reload" \
-        --bind "alt-a:toggle-all"
+        --bind "ctrl-r:execute-silent(fit restore::worktree {+2})+$reload" \
+        --bind "alt-a:select-all" \
+        --bind "alt-s:toggle-all" \
+        --bind "alt-d:deselect-all"
   )
   if [[ $? == 0 ]]; then
     if [[ $mode == "add" ]]; then
