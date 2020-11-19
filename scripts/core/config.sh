@@ -13,3 +13,5 @@ export FIT_PREVIEW_FILE="bat --color=always"
 
 # show directory
 export FIT_PREVIEW_DIRECTORY="exa -l --color=always"
+
+export FIT_CORE_BRANCH_MODE="" # local(default) | remotes | all

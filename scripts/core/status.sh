@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# /*
-# 引数のファイルのindexの状態を判定する
-# @param string file.
-# @return boolean true: is staging/ false: not staging.
-# */
-fit::core::status::is-staging() {
-  git diff --name-only --staged | grep -qE ^"$1"$
-}
-
 # M = modified
 # A = added
 # D = deleted
@@ -57,4 +48,13 @@ fit::core::status() {
   fi
 
   echo "$s"
+}
+
+# /*
+# 引数のファイルのindexの状態を判定する
+# @param string file.
+# @return boolean true: is staging/ false: not staging.
+# */
+fit::core::status::is-staging() {
+  git diff --name-only --staged | grep -qE ^"$1"$
 }
