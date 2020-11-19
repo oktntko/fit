@@ -31,7 +31,7 @@ fit::status() {
 
   header="${header}
 
-  ctrl + u  : update index tracked files.  |
+  ctrl + u  : update index tracked files.  | ctrl + r  : restore file change
   ctrl + a  : update index all files.      |
   ctrl + p  : select update index by line. |
 
@@ -63,11 +63,12 @@ fit::status() {
         --multi \
         --cycle \
         --border=rounded \
-        --preview "fit status::preview {1} {2..}" \
-        --bind "ctrl-s:execute-silent(fit status::change {2..})+$reload" \
+        --preview "fit status::preview {1} {2}" \
+        --bind "ctrl-s:execute-silent(fit status::change {2})+down+$reload" \
         --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
-        --bind "ctrl-p:execute(fit status::patch {2..})+$reload" \
+        --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
+        --bind "ctrl-r:execute-silent(fit restore::worktree {2})+$reload" \
         --bind "alt-a:toggle-all"
   )
   if [[ $? == 0 ]]; then
@@ -107,6 +108,10 @@ fit::status::patch() {
   local file
   file=$1
 
+  # エディタを開く場合は </dev/tty >/dev/tty がないと
+  # Input is not from a terminal
+  # Output is not to a terminal
+  # が出て動きが止まる
   if fit::core::status::is-staging "$file"; then
     git restore -S -p "$file" </dev/tty >/dev/tty
   else
