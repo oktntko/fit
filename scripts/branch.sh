@@ -12,7 +12,7 @@ fit::branch() {
 
 "
 
-  local branches
+  local branches branch
   branches="fit core::branch"
   branch=$(
     eval "$branches" |
@@ -39,5 +39,11 @@ fit::branch::preview() {
 }
 
 fit::branch::switch() {
-  git switch "$1"
+  local branch=$1
+
+  if fit::core::branch::is-remote-branch "$branch"; then
+    git switch -t "$branch"
+  else
+    git switch "$branch"
+  fi
 }

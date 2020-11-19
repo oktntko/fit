@@ -18,3 +18,12 @@ fit::core::branch::change-target() {
     echo "remotes"
   fi
 }
+
+# /*
+# 引数のファイルのindexの状態を判定する
+# @param string file.
+# @return boolean true: is staging/ false: not staging.
+# */
+fit::core::branch::is-remote-branch() {
+  git branch -r | grep -qE "\s*$1$"
+}
