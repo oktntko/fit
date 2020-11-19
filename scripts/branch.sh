@@ -28,7 +28,7 @@ fit::branch() {
         --bind "ctrl-r:reload(eval $branches -r)"
   )
   if [[ $? == 0 ]]; then
-    [[ -n "$branch" ]] && echo "$branch" | awk -v 'ORS= ' '{ print $1 }' | xargs git switch
+    [[ -n "$branch" ]] && echo "$branch" | awk -v 'ORS= ' '{ print $1 }' | xargs fit branch::switch
   fi
 
   git branch -vv && return
