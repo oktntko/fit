@@ -28,6 +28,36 @@ while IFS= read -r -d "" file; do
 done < <(find "$script_dir" -name "*.sh" -type f -print0)
 
 # --------------------------------------------------------------------------------
+# run fit
+# --------------------------------------------------------------------------------
+
+fit() {
+  # work tree にいないときは終了
+  fit::utils::is-inside-work-tree || return 1
+
+  local func_name
+  func_name="$1"
+
+  if [ "$#" = '0' ]; then # 引数なしの時は info
+    func_name="info"
+  else
+    shift
+  fi
+
+  local params func
+  params="$(fit::utils::quote-params "$@")"
+  func="fit::${func_name}"
+
+  if type "$func" >/dev/null 2>&1; then
+    eval "$func $params"
+  else
+    git $func_name "$@"
+  fi
+}
+
+fit "$@"
+
+# --------------------------------------------------------------------------------
 # tig
 # --------------------------------------------------------------------------------
 # m view-main           Show main view
