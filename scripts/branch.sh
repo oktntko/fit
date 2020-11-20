@@ -33,12 +33,16 @@ fit::branch() {
 }
 
 fit::branch::preview() {
+  ! fit::core::branch::is-valid-branch "$1" && return
+
   git log --graph --oneline --decorate --color=always "$1"
 }
 
 fit::branch::switch() {
   local branch
   branch=$1
+
+  ! fit::core::branch::is-valid-branch "$1" && echo "Please select branch name." && return
 
   if fit::core::branch::is-remote-branch "$branch"; then
     git switch -t "$branch"
