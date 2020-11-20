@@ -24,10 +24,19 @@ fit::core::branch() {
 }
 
 # /*
-# 引数のファイルのindexの状態を判定する
-# @param string file.
-# @return boolean true: is staging/ false: not staging.
+# 引数のブランチがリモートブランチかどうか判定する
+# @param string branch.
+# @return boolean true: is remote/ false: is local.
 # */
 fit::core::branch::is-remote-branch() {
   git branch -r | grep -qE "\s*$1$"
+}
+
+# /*
+# 引数のブランチが存在するブランチかどうか判定する
+# @param string branch.
+# @return boolean true: is valid/ false: not valid.
+# */
+fit::core::branch::is-valid-branch() {
+  git branch -a | sed -e 's/\(^\* \|^  \)//g' | awk '{ print $1 }' | grep -qE "\s*$1$"
 }
