@@ -19,16 +19,32 @@ fit::branch() {
 
   local branches branch
   branches="fit core::branch"
-  eval "$branches" |
-    fzf \
-      --ansi \
-      --header "$header" \
-      --layout=reverse \
-      --no-multi \
-      --cycle \
-      --border=rounded \
-      --preview "fit branch::preview {1}" \
-      --bind "enter:execute(fit branch::execute $mode {1})+accept"
+  branch=$(
+    eval "$branches" |
+      fzf \
+        --ansi \
+        --header "$header" \
+        --layout=reverse \
+        --no-multi \
+        --cycle \
+        --border=rounded \
+        --preview "fit branch::preview {1}"
+  )
+
+  if [[ $? == 0 ]]; then
+    branch=$(echo "$branch" | awk '{ print $1 }')
+    ! fit::core::branch::is-valid-branch "$branch" && echo "Please select branch name." && return
+
+    if [[ $mode == "switch" ]]; then
+      fit::branch::switch "$branch"
+
+    elif [[ $mode == "merge" ]]; then
+      fit::branch::merge "$branch"
+
+    elif [[ $mode == "rebase" ]]; then
+      fit::branch::rebase "$branch"
+    fi
+  fi
 
   git branch -vv && return
 }
@@ -37,24 +53,6 @@ fit::branch::preview() {
   ! fit::core::branch::is-valid-branch "$1" && return
 
   git log --graph --oneline --decorate --color=always "$1"
-}
-
-fit::branch::execute() {
-  local mode branch
-  mode="$1"
-  branch="$2"
-
-  ! fit::core::branch::is-valid-branch "$branch" && echo "Please select branch name." && return
-
-  if [[ $mode == "switch" ]]; then
-    fit::branch::switch "$branch"
-
-  elif [[ $mode == "merge" ]]; then
-    fit::branch::merge "$branch"
-
-  elif [[ $mode == "rebase" ]]; then
-    fit::branch::rebase "$branch"
-  fi
 }
 
 fit::branch::switch() {
