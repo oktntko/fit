@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
 fit::branch() {
-  # 引数がある場合は git branch を実行して終了
-  [[ $# -ne 0 ]] && git branch "$@" && return
+  local mode
+  mode="branch"
+  [[ $1 == "--switch" || $1 == "-s" ]] && mode="switch" && shift
+  [[ $1 == "--merge" || $1 == "-m" ]] && mode="merge" && shift
+  [[ $1 == "--rebase" || $1 == "-r" ]] && mode="rebase" && shift
 
   local header
   header="header
@@ -26,7 +29,15 @@ fit::branch() {
   )
 
   if [[ $? == 0 ]]; then
-    [[ -n "$branch" ]] && echo "$branch" | awk -v 'ORS= ' '{ print $1 }' | xargs fit branch::switch
+    if [[ $mode == "switch" ]]; then
+      [[ -n "$branch" ]] && echo "$branch" | awk '{ print $1 }' | xargs fit branch::switch
+
+    elif [[ $mode == "merge" ]]; then
+      [[ -n "$branch" ]] && echo "$branch" | awk '{ print $1 }' | xargs fit branch::switch
+
+    elif [[ $mode == "rebase" ]]; then
+      [[ -n "$branch" ]] && echo "$branch" | awk '{ print $1 }' | xargs fit branch::switch
+    fi
   fi
 
   git branch -vv && return

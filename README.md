@@ -37,12 +37,9 @@
   - `fit rebase` -> Enter to rebase.
 
 #### window
-   -> switch するコミットを選択できる
-   -> KeyBind で ローカルブランチ/リモートブランチ/refs/log から選択できる
-   => Enter で選択したコミットが補完
-   ローカルなら何もなし
-   リモートなら -t
-   refs/log なら -b
+  一覧は`git branch(ブランチ名)` 
+  プレビューは`git log`
+  詳細表示は`git ?`
 
 ### log group
   - `fit log` -> TBD.
