@@ -17,3 +17,7 @@ fit::utils::valid-files() {
 
   eval "$grfile"
 }
+
+fit::utils::is-valid-file() {
+  git ls-files -cdom | grep -qE "^$1$"
+}

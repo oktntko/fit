@@ -15,11 +15,12 @@ fit::status() {
   # header のだし分け
   local header
   header="🔹KeyBindings🔹
-  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git add/restore               | 👆stage/👇unstage selected file.
-
-  ctrl + u  : update index tracked files.  | ctrl + r  : restore file change
-  ctrl + a  : update index all files.      |
-  ctrl + p  : select update index by line. |
+  Ctrl+S : Change status.
+  Ctrl+P : Patch file
+  Ctrl+A : Change status ALL files.
+  Ctrl+R : Restore worktree change.
+  Ctrl+E : Edit file.
+  Ctrl+D : Remove file from filesystem.
 
 🔸Operation fzf🔸
   Tab: toggle/ Alt+a: select-all/ Alt+s: toggle-all/ Alt+d: deselect-all
@@ -45,10 +46,11 @@ fit::status() {
         --border=rounded \
         --preview "fit status::preview {1} {2}" \
         --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
-        --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
-        --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
         --bind "ctrl-r:execute-silent(fit restore::worktree {+2})+$reload" \
+        --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
+        --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
+        --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
         --bind "alt-a:select-all" \
         --bind "alt-s:toggle-all" \
         --bind "alt-d:deselect-all"
@@ -90,14 +92,16 @@ fit::status::patch() {
   local file
   file=$1
 
+  ! fit::utils::is-valid-file "$1" && return
+
   # エディタを開く場合は </dev/tty >/dev/tty がないと
   # Input is not from a terminal
   # Output is not to a terminal
   # が出て動きが止まる
-  if fit::core::status::is-staging "$file"; then
-    git restore -S -p "$file" </dev/tty >/dev/tty
-  else
+  if ! fit::core::status::is-staging "$file"; then
     git add -p "$file" </dev/tty >/dev/tty
+  else
+    git restore -S -p "$file" </dev/tty >/dev/tty
   fi
 }
 

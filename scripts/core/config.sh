@@ -15,3 +15,5 @@ export FIT_PREVIEW_FILE="bat --color=always"
 export FIT_PREVIEW_DIRECTORY="exa -l --color=always"
 
 export FIT_CORE_BRANCH_MODE="" # local(default) | remotes | all
+
+export FIT_EDITOR="${FIT_EDITOR:-$(git config --get core.editor || echo "$EDITOR" || echo 'vi')}"
