@@ -79,5 +79,7 @@ fit::branch::rebase() {
   local branch
   branch="$1"
 
+  echo "test"
+
   eval "git rebase $branch $FIT_REBASE_OPTION"
 }
