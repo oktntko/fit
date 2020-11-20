@@ -28,7 +28,7 @@ fit::branch() {
       --cycle \
       --border=rounded \
       --preview "fit branch::preview {1}" \
-      --bind "enter:execute(fit branch::execute $mode {1} {q})"
+      --bind "enter:execute(fit branch::execute $mode {1})"
 
   git branch -vv && return
 }
@@ -47,13 +47,13 @@ fit::branch::execute() {
   ! fit::core::branch::is-valid-branch "$1" && echo "Please select branch name." && return
 
   if [[ $mode == "switch" ]]; then
-    fit branch::switch "$branch" "$@"
+    fit branch::switch "$branch"
 
   elif [[ $mode == "merge" ]]; then
-    fit branch::merge "$branch" "$@"
+    fit branch::merge "$branch"
 
   elif [[ $mode == "rebase" ]]; then
-    fit branch::rebase "$branch" "$@"
+    fit branch::rebase "$branch"
   fi
 }
 
@@ -72,12 +72,12 @@ fit::branch::merge() {
   local branch
   branch=$1 && shift
 
-  git merge "$branch" "$@"
+  git merge "$branch" "$FIT_MERGE_OPTION"
 }
 
 fit::branch::rebase() {
   local branch
   branch=$1 && shift
 
-  git rebase "$branch" "$@"
+  git rebase "$branch" "$FIT_REBASE_OPTION"
 }
