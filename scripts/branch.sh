@@ -72,12 +72,12 @@ fit::branch::merge() {
   local branch
   branch="$1"
 
-  git merge "$branch" "$FIT_MERGE_OPTION"
+  eval "git merge $branch $FIT_MERGE_OPTION"
 }
 
 fit::branch::rebase() {
   local branch
   branch="$1"
 
-  git rebase "$branch" "$FIT_REBASE_OPTION"
+  eval "git rebase $branch $FIT_REBASE_OPTION"
 }
