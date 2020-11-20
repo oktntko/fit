@@ -11,11 +11,11 @@ fit::branch() {
   [[ $# -ne 0 ]] && git branch "$@" && return
 
   local header
-  header="header
-
-  ENTER TO switch branch
+  if [[ $mode != "branch" ]]; then
+    header="${YELLOW}ENTER${NORMAL} to ${YELLOW}${mode}${NORMAL} branch
 
 "
+  fi
 
   local branches branch
   branches="fit core::branch"
