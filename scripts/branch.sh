@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
 fit::branch() {
-  # 引数がある場合は git branch を実行して終了
-  [[ $# -ne 0 ]] && git branch "$@" && return
-
   local mode
   mode="branch"
-  [[ $1 == "--switch" || $1 == "-s" ]] && mode="switch" && shift
-  [[ $1 == "--merge" || $1 == "-m" ]] && mode="merge" && shift
-  [[ $1 == "--rebase" || $1 == "-r" ]] && mode="rebase" && shift
+  [[ $1 == "--switch" ]] && mode="switch" && shift
+  [[ $1 == "--merge" ]] && mode="merge" && shift
+  [[ $1 == "--rebase" ]] && mode="rebase" && shift
+
+  # 引数がある場合は git branch を実行して終了
+  [[ $# -ne 0 ]] && git branch "$@" && return
 
   local header
   header="header
 
-  ENTER TO swtich branch
+  ENTER TO switch branch
 
 "
 
@@ -28,7 +28,7 @@ fit::branch() {
       --cycle \
       --border=rounded \
       --preview "fit branch::preview {1}" \
-      --bind "enter:execute(fit branch::execute $mode {1})"
+      --bind "enter:execute(fit branch::execute $mode {1})+accept"
 
   git branch -vv && return
 }
@@ -41,43 +41,43 @@ fit::branch::preview() {
 
 fit::branch::execute() {
   local mode branch
-  mode="$1" && shift
-  branch="$1" && shift
+  mode="$1"
+  branch="$2"
 
-  ! fit::core::branch::is-valid-branch "$1" && echo "Please select branch name." && return
+  ! fit::core::branch::is-valid-branch "$branch" && echo "Please select branch name." && return
 
   if [[ $mode == "switch" ]]; then
-    fit branch::switch "$branch"
+    fit::branch::switch "$branch"
 
   elif [[ $mode == "merge" ]]; then
-    fit branch::merge "$branch"
+    fit::branch::merge "$branch"
 
   elif [[ $mode == "rebase" ]]; then
-    fit branch::rebase "$branch"
+    fit::branch::rebase "$branch"
   fi
 }
 
 fit::branch::switch() {
   local branch
-  branch=$1 && shift
+  branch="$1"
 
   if fit::core::branch::is-remote-branch "$branch"; then
-    git switch -t "$branch" "$@"
+    git switch -t "$branch"
   else
-    git switch "$branch" "$@"
+    git switch "$branch"
   fi
 }
 
 fit::branch::merge() {
   local branch
-  branch=$1 && shift
+  branch="$1"
 
   git merge "$branch" "$FIT_MERGE_OPTION"
 }
 
 fit::branch::rebase() {
   local branch
-  branch=$1 && shift
+  branch="$1"
 
   git rebase "$branch" "$FIT_REBASE_OPTION"
 }
