@@ -39,7 +39,6 @@ fit::branch::preview() {
 fit::branch::switch() {
   local branch
   branch=$1
-  echo "$branch"
 
   if fit::core::branch::is-remote-branch "$branch"; then
     git switch -t "$branch"

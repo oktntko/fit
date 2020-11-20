@@ -29,7 +29,7 @@ fit::core::branch() {
 # @return boolean true: is remote/ false: is local.
 # */
 fit::core::branch::is-remote-branch() {
-  git branch -r | grep -qE "\s*$1$"
+  git branch -r --format="%(refname:short)" | grep -qE "^$1$"
 }
 
 # /*
@@ -38,5 +38,5 @@ fit::core::branch::is-remote-branch() {
 # @return boolean true: is valid/ false: not valid.
 # */
 fit::core::branch::is-valid-branch() {
-  git branch -a | sed -e 's/\(^\* \|^  \)//g' | awk '{ print $1 }' | grep -qE "\s*$1$"
+  git branch -a --format="%(refname:short)" | grep -qE "^$1$"
 }
