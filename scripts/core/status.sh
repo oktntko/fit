@@ -15,39 +15,30 @@
 # @return boolean true: is staging/ false: not staging.
 # */
 fit::core::status() {
-  # git diff --name-only          => unstaged な変更を表示する
-  # git diff --name-only --staged => staged な変更を表示する
-  local opt filter
-  for opt in "$@"; do
-    case $opt in
-    --staging-only)
-      filter=$(git diff --name-only --staged)
-      [[ -z ${filter} ]] && return
-      ;;
-    --unstaging-only)
-      filter=$(git diff --name-only)
-      [[ -z ${filter} ]] && return
-      ;;
-    esac
-    shift
-  done
+  local statuses
+  statuses=$(git -c color.ui=always -c status.relativePaths=true status -su)
 
-  local s
-  s=$(git -c color.ui=always -c status.relativePaths=true status -su)
+  local stating unstaging untracked
+  stating=$(echo "${statuses}" | fit core::status::list-files --staging-only)
+  unstaging=$(echo "${statuses}" | fit core::status::list-files --unstaging-only)
+  untracked=$(echo "${statuses}" | fit core::status::list-files --untracked-only)
 
-  if [[ -n ${filter} ]]; then
-    # filter の指定がある場合、文字列を連結する
-    local grfile
-    grfile="grep --color=never "
-    while IFS= read -r line; do
-      grfile="${grfile} -e ${line}"
-    done < <(echo "$filter")
-
-    # オプションとして grep の後ろにつけると機能しなかったのでマルっと eval で実行
-    s=$(echo "${s}" | eval "${grfile}")
+  if [[ -n $stating ]]; then
+    echo "${GREEN}Changes to be committed:${NORMAL}"
+    echo "${stating}"
+    [[ -n $unstaging ]] || [[ -n $untracked ]] && echo
   fi
 
-  echo "$s"
+  if [[ -n $unstaging ]]; then
+    echo "${RED}Changes not staged for commit:${NORMAL}"
+    echo "${unstaging}"
+    [[ -n $untracked ]] && echo
+  fi
+
+  if [[ -n $untracked ]]; then
+    echo "${YELLOW}Untracked files:${NORMAL}"
+    echo "${untracked}"
+  fi
 }
 
 # /*
@@ -57,4 +48,30 @@ fit::core::status() {
 # */
 fit::core::status::is-staging() {
   git diff --name-only --staged | grep -qE ^"$1"$
+}
+
+fit::core::status::list-files() {
+  local filter
+  if [[ $1 == --staging-only ]]; then
+    # git diff --name-only --staged => staged な変更を表示する
+    filter=$(git diff --name-only --staged)
+  elif [[ $1 == --unstaging-only ]]; then
+    # git diff --name-only          => unstaged な変更を表示する
+    filter=$(git diff --name-only)
+  elif [[ $1 == --untracked-only ]]; then
+    # git ls-files --others --exclude-standard =>
+    #    others           : 管理対象外のファイル
+    #    exclude-standard : .gitignoreで無視されているファイルを除く
+    filter=$(git ls-files --others --exclude-standard)
+  fi
+
+  [[ -z $filter ]] && return
+
+  local grfile
+  grfile="grep --color=never "
+  while IFS= read -r line; do
+    grfile="${grfile} -e ${line}"
+  done < <(echo "$filter")
+
+  eval "${grfile}"
 }

@@ -14,49 +14,28 @@ fit::status() {
 
   # header のだし分け
   local header
-  header="🔹KeyBindings🔹"
-  if [[ $mode == "add" ]]; then
-    header="${header}
-  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git add                       | 👆stage selected file."
-
-  elif [[ $mode == "restore" ]]; then
-    header="${header}
-  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git restore                   | 👇unstage selected file."
-
-  else
-    header="${header}
-  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git add/restore               | 👆stage/👇unstage selected file."
-
-  fi
-
-  # TODO: headerなにができればいいのか。
-  header="${header}
+  header="🔹KeyBindings🔹
+  ${YELLOW}${BOLD}ctrl + s${NORMAL}   git add/restore               | 👆stage/👇unstage selected file.
 
   ctrl + u  : update index tracked files.  | ctrl + r  : restore file change
   ctrl + a  : update index all files.      |
   ctrl + p  : select update index by line. |
 
 🔸Operation fzf🔸
-  tab => toggle / alt + a => select-all / alt + s => toggle-all / alt + d => deselect-all
+  Tab: toggle/ Alt+a: select-all/ Alt+s: toggle-all/ Alt+d: deselect-all
 
 "
 
-  # add の場合 unstaging なファイルのみ/restore の場合 staging なファイルのみ表示
-  local s filter
-  if [[ $mode == "add" ]]; then
-    filter="--unstaging-only"
+  # TODO: add の場合 unstaging なファイルのみ/restore の場合 staging なファイルのみ表示
+  local statuses
 
-  elif [[ $mode == "restore" ]]; then
-    filter="--staging-only"
-
-  fi
-
+  # TODO: [R]renameに対応できていないと思われる
   # --preview や --execute で実行するコマンドはPATHが通っていないと実行できない
   # 例えば、nvm => NG だけど、nvm を使ってインストールした node => OK.
-  s="fit core::status ${filter}"
-  reload="reload(eval $s)"
+  statuses="fit core::status"
+  reload="reload(eval $statuses)"
   files=$(
-    eval "$s" |
+    eval "$statuses" |
       fzf \
         --ansi \
         --header "$header" \
@@ -65,7 +44,7 @@ fit::status() {
         --cycle \
         --border=rounded \
         --preview "fit status::preview {1} {2}" \
-        --bind "ctrl-s:execute-silent(fit status::change {+2})+down+$reload" \
+        --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
         --bind "ctrl-u:execute-silent(fit add-u)+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
         --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
@@ -76,10 +55,10 @@ fit::status() {
   )
   if [[ $? == 0 ]]; then
     if [[ $mode == "add" ]]; then
-      [[ -n "$files" ]] && echo "$files" | awk -v 'ORS= ' '{ print $2 }' | xargs git add
+      [[ -n "$files" ]] && echo "$files" | awk '{ print $2 }' | fit::utils::valid-files | xargs git add
 
     elif [[ $mode == "restore" ]]; then
-      [[ -n "$files" ]] && echo "$files" | awk -v 'ORS= ' '{ print $2 }' | xargs git restore --staged
+      [[ -n "$files" ]] && echo "$files" | awk '{ print $2 }' | fit::utils::valid-files | xargs git restore --staged
 
     elif [[ $mode == "commit" ]]; then
       git commit "$@" && return
@@ -138,5 +117,4 @@ fit::status::preview() {
   elif [[ ! -e $file ]]; then # deleted file => git diff.
     git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
   fi
-  # TODO: [R]renameに対応できていないと思われる
 }
