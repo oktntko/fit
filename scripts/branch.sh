@@ -6,7 +6,6 @@ fit::branch() {
 
   local header
   header="header
-  ctrl-l : to local / ctrl-r : to remotes
 
   ENTER TO swtich branch
 
@@ -23,10 +22,9 @@ fit::branch() {
         --no-multi \
         --cycle \
         --border=rounded \
-        --preview "fit branch::preview {1}" \
-        --bind "ctrl-l:reload(eval $branches)" \
-        --bind "ctrl-r:reload(eval $branches -r)"
+        --preview "fit branch::preview {1}"
   )
+
   if [[ $? == 0 ]]; then
     [[ -n "$branch" ]] && echo "$branch" | awk -v 'ORS= ' '{ print $1 }' | xargs fit branch::switch
   fi

@@ -6,17 +6,21 @@
 # @return boolean true: is staging/ false: not staging.
 # */
 fit::core::branch() {
-  eval "git branch --color -vv $1" | sed -e 's/\(^\* \|^  \)//g'
-}
+  local locals remotes
+  locals=$(git branch --color -vv | sed -e 's/\(^\* \|^  \)//g')
+  remotes=$(git branch --color -vv -r | sed -e 's/\(^\* \|^  \)//g')
 
-fit::core::branch::change-target() {
-  if [[ $FIT_CORE_BRANCH_MODE == "remotes" ]]; then
-    echo "all"
-  elif [[ $FIT_CORE_BRANCH_MODE == "all" ]]; then
-    echo "local"
-  else
-    echo "remotes"
+  if [[ -n $locals ]]; then
+    echo "${UNDERLINE}Local branches:${NORMAL}"
+    echo "${locals}"
+    [[ -n $remotes ]] && echo
   fi
+
+  if [[ -n $remotes ]]; then
+    echo "${UNDERLINE}Remotes branches:${NORMAL}"
+    echo "${remotes}"
+  fi
+
 }
 
 # /*
