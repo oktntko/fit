@@ -18,6 +18,7 @@ fit::branch() {
   fi
   header="${header}
   Ctrl+M : Rename branch.
+  Ctrl+D : Delete branch(force).
 
 "
 
@@ -33,7 +34,8 @@ fit::branch() {
         --cycle \
         --border=rounded \
         --preview "fit branch::preview {1}" \
-        --bind "ctrl-m:execute(fit branch::rename {1})+reload(eval $branches)"
+        --bind "ctrl-m:execute(fit branch::rename {1})+reload(eval $branches)" \
+        --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)"
   )
 
   if [[ $? == 0 ]]; then
@@ -113,5 +115,27 @@ fit::branch::rename() {
     echo "${RED}'${input}' is not is not a valid branch name${NORMAL}" >/dev/tty
     return
 
+  fi
+}
+
+fit::branch::delete() {
+  local branch
+  branch="$1"
+
+  if ! fit::core::branch::is-valid-branch "$branch"; then
+    # 不正なブランチ名の場合
+    read -p "${RED}Please select branch name.${NORMAL} [Press any key] ${GREEN}❯${NORMAL} " -r -n 1 -s </dev/tty
+    echo >/dev/tty
+    return
+  fi
+
+  # 削除なので確認しておく
+  read -p "Delete '${branch}' branch? [y/N] ${GREEN}❯${NORMAL} " -r -n 1 -s yn </dev/tty
+  [[ ! $yn =~ y|Y ]] && return
+
+  if fit::core::branch::is-remote-branch "$branch"; then
+    git push origin --delete "$branch"
+  else
+    git branch -D "$branch"
   fi
 }
