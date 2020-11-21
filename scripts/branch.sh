@@ -13,11 +13,10 @@ fit::branch() {
   local header
   if [[ $mode != "branch" ]]; then
     header="${YELLOW}ENTER${NORMAL} to ${YELLOW}${mode}${NORMAL} branch
-
 "
   fi
   header="${header}
-  Ctrl+M : Rename branch.
+  Ctrl+N : Rename branch.
   Ctrl+D : Delete branch(force).
 
 "
@@ -34,15 +33,18 @@ fit::branch() {
         --cycle \
         --border=rounded \
         --preview "fit branch::preview {1}" \
-        --bind "ctrl-m:execute(fit branch::rename {1})+reload(eval $branches)" \
+        --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
         --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)"
   )
+  echo "$branch"
 
   if [[ $? == 0 ]]; then
+    echo "$branch"
     branch=$(echo "$branch" | awk '{ print $1 }')
     ! fit::core::branch::is-valid-branch "$branch" && echo "Please select branch name." && return
 
     if [[ $mode == "switch" ]]; then
+      echo "$branch"
       fit::branch::switch "$branch"
 
     elif [[ $mode == "merge" ]]; then
@@ -134,7 +136,12 @@ fit::branch::delete() {
   [[ ! $yn =~ y|Y ]] && return
 
   if fit::core::branch::is-remote-branch "$branch"; then
-    git push origin --delete "$branch"
+    # リモートはちょっと面倒
+    local remote
+    remote=$(git remote | head -1)
+    branch=$(echo "${branch}" | sed -e "s/${remote}\///g")
+
+    eval "git push ${remote} --delete ${branch}" >/dev/tty
   else
     git branch -D "$branch"
   fi
