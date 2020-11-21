@@ -27,3 +27,7 @@ fit::utils::quote-params() {
     fi
   done
 }
+
+fit::utils::random() {
+  cat < /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1
+}

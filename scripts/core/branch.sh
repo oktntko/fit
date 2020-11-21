@@ -11,13 +11,13 @@ fit::core::branch() {
   remotes=$(git branch --color -vv -r | sed -e 's/\(^\* \|^  \)//g')
 
   if [[ -n $locals ]]; then
-    echo "${UNDERLINE}Local branches:${NORMAL}"
+    echo "${S_UNDERLINE}Local branches:${NORMAL}"
     echo "${locals}"
     [[ -n $remotes ]] && echo
   fi
 
   if [[ -n $remotes ]]; then
-    echo "${UNDERLINE}Remotes branches:${NORMAL}"
+    echo "${S_UNDERLINE}Remotes branches:${NORMAL}"
     echo "${remotes}"
   fi
 

@@ -16,6 +16,10 @@ fit::branch() {
 
 "
   fi
+  header="${header}
+  Ctrl+M : Rename branch.
+
+"
 
   local branches branch
   branches="fit core::branch"
@@ -28,7 +32,8 @@ fit::branch() {
         --no-multi \
         --cycle \
         --border=rounded \
-        --preview "fit branch::preview {1}"
+        --preview "fit branch::preview {1}" \
+        --bind "ctrl-m:execute(fit branch::rename {1})+reload(eval $branches)"
   )
 
   if [[ $? == 0 ]]; then
@@ -78,4 +83,35 @@ fit::branch::rebase() {
   branch="$1"
 
   eval "git rebase $branch $FIT_REBASE_OPTION"
+}
+
+fit::branch::rename() {
+  # fzf execute で標準入力＋出力を行う例
+  # vim とかadd -p とかと同じように 入力 </dev/tty 出力 >/dev/tty が必要
+  # TODO: 色の意味を考えないと
+  local branch
+  branch="$1"
+
+  if ! fit::core::branch::is-valid-branch "$branch" || fit::core::branch::is-remote-branch "$branch"; then
+    # 不正なブランチ名 or リモートブランチの場合
+    # 思いつく方法が面倒なのでエラーにする
+    read -p "${RED}Please select local branch.${NORMAL} [Press any key] ${GREEN}❯${NORMAL} " -r -n 1 -s </dev/tty
+    echo >/dev/tty
+    return
+
+  fi
+
+  # ローカルブランチの場合
+  echo "${YELLOW}Please input new branch name.${NORMAL}" >/dev/tty
+  read -p "git branch -m ${branch} ${GREEN}❯${NORMAL} " -r input </dev/tty
+
+  if git check-ref-format --branch "${input}" >/dev/null 2>&1; then
+    git branch -m "${branch}" "${input}"
+    return
+
+  else
+    echo "${RED}'${input}' is not is not a valid branch name${NORMAL}" >/dev/tty
+    return
+
+  fi
 }
