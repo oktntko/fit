@@ -36,15 +36,12 @@ fit::branch() {
         --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
         --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)"
   )
-  echo "$branch"
 
   if [[ $? == 0 ]]; then
-    echo "$branch"
     branch=$(echo "$branch" | awk '{ print $1 }')
     ! fit::core::branch::is-valid-branch "$branch" && echo "Please select branch name." && return
 
     if [[ $mode == "switch" ]]; then
-      echo "$branch"
       fit::branch::switch "$branch"
 
     elif [[ $mode == "merge" ]]; then
@@ -108,6 +105,7 @@ fit::branch::rename() {
   # ローカルブランチの場合
   echo "${YELLOW}Please input new branch name.${NORMAL}" >/dev/tty
   read -p "git branch -m ${branch} ${GREEN}❯${NORMAL} " -r input </dev/tty
+  echo >/dev/tty
 
   if git check-ref-format --branch "${input}" >/dev/null 2>&1; then
     git branch -m "${branch}" "${input}"
@@ -133,6 +131,7 @@ fit::branch::delete() {
 
   # 削除なので確認しておく
   read -p "Delete '${branch}' branch? [y/N] ${GREEN}❯${NORMAL} " -r -n 1 -s yn </dev/tty
+  echo >/dev/tty
   [[ ! $yn =~ y|Y ]] && return
 
   if fit::core::branch::is-remote-branch "$branch"; then
@@ -142,6 +141,7 @@ fit::branch::delete() {
     branch=$(echo "${branch}" | sed -e "s/${remote}\///g")
 
     eval "git push ${remote} --delete ${branch}" >/dev/tty
+    # TODO: 処理中なのに入力なので何か止められないか
   else
     git branch -D "$branch"
   fi
