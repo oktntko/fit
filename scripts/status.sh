@@ -44,6 +44,7 @@ fit::status() {
         --multi \
         --cycle \
         --border=rounded \
+        --no-mouse \
         --preview "fit status::preview {1} {2}" \
         --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \

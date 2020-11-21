@@ -14,6 +14,20 @@ fit::log() {
 
 '
 
+# TODO: 2つだけ選択して git diff 又は git difftool
+# 流れ
+# git fetch => git branch -r => git diff (分岐前) (最終コミット)
+# fit branch => 詳細 => fit log => アクション => fit diff
+# できそうなコマンド
+# git diff [old commit] [new commit]
+# git diff --name-only [old commit] [new commit]
+# --- ファイル名の一覧
+# git diff [old commit] [new commit] [ファイル名]
+# --- ファイルの中の差分
+# git show はその時点の差分又はファイルを表示するだけ
+# git show HEAD:[ファイル名] でHEADのファイル名の中身を表示できる
+# git diff HEAD^ HEAD と git show はファイルの差分としては同じ
+
   local reload
   reload="reload(fit log::list)"
   files=$(
@@ -23,6 +37,7 @@ fit::log() {
         --header "$header" \
         --layout=reverse \
         --border=rounded \
+        --no-mouse \
         --preview "fit log::list::extract {} | xargs fit log::preview" \
   )
 }
