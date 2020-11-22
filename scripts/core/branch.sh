@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# /*
-# 引数のファイルのindexの状態を判定する
-# @param string file.
-# @return boolean true: is staging/ false: not staging.
-# */
 fit::core::branch() {
   local locals remotes
   locals=$(git branch --color -vv | sed -e 's/\(^\* \|^  \)//g')
@@ -20,7 +15,6 @@ fit::core::branch() {
     echo "${S_UNDERLINE}Remotes branches:${NORMAL}"
     echo "${remotes}"
   fi
-
 }
 
 # /*
