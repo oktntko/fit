@@ -18,6 +18,7 @@ fit::branch() {
   header="${header}
   Ctrl+N : Rename branch.
   Ctrl+D : Delete branch(force).
+  Ctrl+L : Log view.
 
 "
 
@@ -35,7 +36,8 @@ fit::branch() {
         --no-mouse \
         --preview "fit branch::preview {1}" \
         --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
-        --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)"
+        --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)" \
+        --bind "ctrl-l:execute(fit log {1})+reload(eval $branches)"
   )
 
   if [[ $? == 0 ]]; then

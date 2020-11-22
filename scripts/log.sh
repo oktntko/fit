@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
 fit::log() {
-  # 引数がある場合は git log を実行して終了
-  [[ $# -ne 0 ]] && git log "$@" && return
-
   local header
   header="🔹KeyBindings🔹
   Ctrl+D select two commit and Ctrl+D then git diff.
@@ -32,8 +29,8 @@ fit::log() {
       --border=rounded \
       --no-mouse \
       --multi \
-      --preview "fit core::log::extract {} {+}" \
-      --bind "ctrl-d:execute(fit log::diff --current-line {} --multi-select-line {+})"
+      --preview "fit core::log::extract {} | xargs fit log::preview" \
+      --bind "ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)"
 
   fit core::log -10 && return
 }
@@ -43,26 +40,21 @@ fit::log::preview() {
 }
 
 fit::log::diff() {
-  declare -a current_line=
-  declare -a multi_select_lines=()
-
-  while (($# > 0)); do
-    case $1 in
-    --*)
-      if [[ $1 == --current-line ]]; then
-        nflag='-n'
-      fi
-      if [[ $1 == --multi-select-lines ]]; then
-        lflag='-l'
-      fi
-      shift
-      ;;
-    *)
-      multi_select_lines=("${multi_select_lines[@]}" "$1")
-      shift
-      ;;
-    esac
+  # 引数パターン
+  # 引数なし     => ありえない(現在の行)
+  # 引数１個     => フォーカス行                            => git diff フォーカス行と最新の行の比較
+  # 引数２個     => フォーカス行 選択行                     => git diff フォーカス行と選択行の比較
+  # 引数３個     => フォーカス行 選択行１ 選択行２          => git diff 選択行１と選択行２の比較
+  # 引数３個以上 => フォーカス行 選択行１ 選択行２ 選択行３ => git diff 選択行２と選択行３の比較
+  local -a array=("HEAD")
+  local opt
+  for opt in "$@"; do
+    if [[ ${#array[@]} -ge 2 ]]; then
+      array=("${array[@]:0:${#array[@]}-1}")
+    fi
+    array=("$opt" "${array[@]}")
+    shift
   done
 
-  fit::diff "n[${n}]" "line[${line}]" "commits[${commits}]"
+  fit::diff "${array[0]}" "${array[1]}"
 }
