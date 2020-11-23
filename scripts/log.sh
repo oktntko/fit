@@ -37,7 +37,14 @@ fit::log() {
 }
 
 fit::log::preview() {
-  [[ -n $1 ]] && git show "$1" --decorate --color=always | eval "${FIT_PAGER_SHOW}"
+  [[ -z $1 ]] && return
+  echo "${CYAN}❯ git diff $1^ $1${NORMAL} --stat --color=always"
+  echo
+  git diff "$1"^ "$1" --stat --color=always
+  echo
+  echo "${CYAN}❯ git show $1${NORMAL} --decorate --color=always"
+  echo
+  git show "$1" --decorate --color=always | eval "${FIT_PAGER_SHOW}"
 }
 
 fit::log::diff() {
