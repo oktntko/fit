@@ -52,6 +52,7 @@ fit::status() {
         --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
         --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
         --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
+        --bind "alt-r:toggle-preview" \
         --bind "alt-a:select-all" \
         --bind "alt-s:toggle-all" \
         --bind "alt-d:deselect-all"

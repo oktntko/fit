@@ -16,5 +16,6 @@ fit::diff() {
       --border=rounded \
       --no-mouse \
       --multi \
-      --preview "git diff $* {} | eval ${FIT_PAGER_DIFF}"
+      --preview "git diff $* {} | eval ${FIT_PAGER_DIFF}" \
+      --bind "alt-r:toggle-preview"
 }

@@ -35,6 +35,7 @@ fit::branch() {
         --border=rounded \
         --no-mouse \
         --preview "fit branch::preview {1}" \
+        --bind "alt-r:toggle-preview" \
         --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
         --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)" \
         --bind "ctrl-l:execute(fit log {1})+reload(eval $branches)"

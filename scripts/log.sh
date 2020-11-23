@@ -29,6 +29,7 @@ fit::log() {
       --border=rounded \
       --no-mouse \
       --multi \
+      --bind "alt-r:toggle-preview" \
       --preview "fit core::log::extract {} | xargs fit log::preview" \
       --bind "ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)"
 
