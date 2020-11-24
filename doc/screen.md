@@ -70,39 +70,39 @@
 
 ## 参考
 ### fuzzy git
-- `status`
-- `branch`
-- `log`
-- `reflog`
-- `stash`
-- `diff`
+- `status` => 実装した ✅
+- `branch` => 実装した ✅
+- `log` => 実装した ✅
+- `reflog` => まだ。🚸
+- `stash` => まだ。🚸
+- `diff` => 実装した ✅
 
 ### tig
-- `m view-main           Show main view`
-- `d view-diff           Show diff view`
-- `l view-log            Show log view`
-- `t view-tree           Show tree view`
-- `f view-blob           Show blob view`
-- `b view-blame          Show blame view`
-- `r view-refs           Show refs view`
-- `s view-status         Show status view`
-- `c view-stage          Show stage view`
-- `y view-stash          Show stash view`
-- `g view-grep           Show grep view`
-- `p view-pager          Show pager view`
-- `h view-help           Show help view`
+- `m view-main           Show main view` => 実質log view ✅
+- `d view-diff           Show diff view` => 実装した ✅
+- `l view-log            Show log view` => 使わない(main viewで十分) ⛔
+- `t view-tree           Show tree view` => エクスプローラーっぽい。編集がメインではないので不要⛔
+- `f view-blob           Show blob view` => ファイルをそのまま閲覧できる🚸
+- `b view-blame          Show blame view` => ファイルにblameを表示。編集がメインではないので不要⛔
+- `r view-refs           Show refs view` => refsというかbranch view✅
+- `s view-status         Show status view` => 実装した ✅
+- `c view-stage          Show stage view` => 操作方法がわからないけどこれは実装した ✅
+- `y view-stash          Show stash view` => まだ。🚸
+- `g view-grep           Show grep view` => fzfが使えるのでいらない。grepしたいならgrepで。⛔
+- `p view-pager          Show pager view` => よくわからないのでいらない ⛔
+- `h view-help           Show help view` => まだ。🚸
 
 ### forgit
-- `git add(ga)`
-- `git log(glo)`
-- `gitignore(gi)`
-- `git diff(gd)`
-- `git reset HEAD <file>(grh)`
-- `git checkout <file>(gcf)`
-- `git stash(gss)`
-- `git clean(gclean)`
-- `git cherry-pick(gcp)`
-- `git rebase -i(grb)`
+- `git add(ga)` => 実装した ✅
+- `git log(glo)` => 実装した ✅
+- `gitignore(gi)` => 作っても二番煎じ以下なのでいらない⛔
+- `git diff(gd)` => 実装した ✅
+- `git reset HEAD <file>(grh)` => 実装した ✅
+- `git checkout <file>(gcf)` => 実装した ✅
+- `git stash(gss)` => まだ。🚸
+- `git clean(gclean)` => いるか？🚸
+- `git cherry-pick(gcp)` => いるか？🚸
+- `git rebase -i(grb)` => いるか？🚸
 
 ## 画面一覧
 - commit
