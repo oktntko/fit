@@ -8,46 +8,50 @@
 # git diff [<options>] --no-index [--] <path> <path>
 
 fit::core::diff() {
-  local -a options pathes
-  options=()
-  pathes=()
   local -A commits
   commits=(
     ["old"]=""
     ["new"]=""
   )
 
-  while (($# > 0)); do
-    # この二つは特別扱い
-    if [[ $1 == --cached || $1 == --staged ]]; then
-      cached="--cached"
-    elif [[ $1 == --no-index ]]; then
-      no_index="--no-index"
-    fi
+  local -a options pathes
+  options=()
+  pathes=()
 
-    if [[ $1 == -- ]]; then
-      # [--]区切り文字 以降はすべて path
-      is_path=true
-    elif [[ $1 =~ -.* ]]; then
+  local cached no_index is_path
+
+  for x in "$@"; do
+    if [[ ${x} == -- ]]; then
+      is_path=true # [--]区切り文字 以降はすべて path
+
+    elif [[ ${x} == --cached || ${x} == --staged ]]; then
+      cached="--cached" # cachedは特別扱い
+
+    elif [[ ${x} == --no-index ]]; then
+      no_index="--no-index" # no-indexは特別扱い
+
+    elif [[ ${x} =~ -.* ]]; then
       # options
-      options=("${options[*]}" "$1")
+      options=("${options[*]}" "${x}")
+
     else
       # commit or path
-      if [[ "${is_path}" || -f ${1} ]]; then
-        pathes=("${pathes[*]}" "$1")
+      if [[ "${is_path}" || -f ${x} ]]; then
+        pathes=("${pathes[*]}" "${x}")
         is_path=true
       else
-        commits["old"]=${commits["new"]}
-        commits["new"]="$1"
+        commits["old"]="${commits["new"]}"
+        commits["new"]="${x}"
       fi
     fi
-
-    shift
   done
+
+  # 引数がある場合は git を呼び出して終了
+  [[ ${#options[*]} -gt 0 ]] && git diff "$@" && return
 
   # コマンドを生成
   local git_diff git_diff_preview
-  git_diff=$(echo "git diff --name-only ${cached} ${no_index} ${commits[*]} $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/ \+/ /g')
+  git_diff=$(echo "git diff --stat --color=always ${cached} ${no_index} ${commits[*]} $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/ \+/ /g')
   git_diff_preview=$(echo "git diff ${cached} ${no_index} ${commits[*]} --" | sed -e 's/ \+/ /g')
 
   local header
@@ -58,16 +62,16 @@ ${GREEN}❯ ${git_diff}${NORMAL}
 "
 
   # less -R を入れないとすぐに終了する
-  eval "${git_diff}" |
+  eval "${git_diff}" | sed -e '$d' |
     fzf \
       --ansi \
       --header "$header" \
       --layout=reverse \
       --border=rounded \
       --no-mouse \
-      --multi \
       --cycle \
-      --preview "eval $git_diff_preview {} | eval ${FIT_PAGER_DIFF}" \
+      --preview "eval $git_diff_preview {1} | eval ${FIT_PAGER_DIFF}" \
       --bind "alt-r:toggle-preview" \
-      --bind "alt-d:execute(eval $git_diff_preview {} | eval ${FIT_PAGER_DIFF} | less -R)"
+      --bind "alt-s:execute(fit status)+reload(eval ${git_diff} | sed -e '\$d')" \
+      --bind "alt-d:execute(eval $git_diff_preview {1} | eval ${FIT_PAGER_DIFF} | less -R)"
 }
