@@ -22,12 +22,8 @@ fit::log() {
   # git diff HEAD^ HEAD と git show はファイルの差分としては同じ
 
   fit core::log |
-    fzf \
-      --ansi \
+    fit::fzf \
       --header "$header" \
-      --layout=reverse \
-      --border=rounded \
-      --no-mouse \
       --multi \
       --bind "alt-r:toggle-preview" \
       --preview "fit core::log::extract {} | xargs fit log::preview" \

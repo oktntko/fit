@@ -30,9 +30,6 @@ fit::status() {
   Ctrl+E : Edit file.
   Ctrl+D : Remove file from filesystem.
 
-🔸Operation fzf🔸
-  Tab: toggle/ Alt+a: select-all/ Alt+s: toggle-all/ Alt+d: deselect-all
-
 "
 
   # TODO: add の場合 unstaging なファイルのみ/restore の場合 staging なファイルのみ表示
@@ -45,14 +42,9 @@ fit::status() {
   reload="reload(eval $statuses)"
   files=$(
     eval "$statuses" |
-      fzf \
-        --ansi \
+      fit::fzf \
         --header "$header" \
-        --layout=reverse \
         --multi \
-        --cycle \
-        --border=rounded \
-        --no-mouse \
         --preview "fit status::preview {1} {2}" \
         --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
         --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
@@ -60,10 +52,6 @@ fit::status() {
         --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
         --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
         --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
-        --bind "alt-r:toggle-preview" \
-        --bind "alt-a:select-all" \
-        --bind "alt-s:toggle-all" \
-        --bind "alt-d:deselect-all"
   )
   if [[ $? == 0 ]]; then
     if [[ $mode == "add" ]]; then

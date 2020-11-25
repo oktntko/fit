@@ -63,15 +63,9 @@ ${GREEN}❯ ${git_diff}${NORMAL}
 
   # less -R を入れないとすぐに終了する
   eval "${git_diff}" | sed -e '$d' |
-    fzf \
-      --ansi \
+    fit::fzf \
       --header "$header" \
-      --layout=reverse \
-      --border=rounded \
-      --no-mouse \
-      --cycle \
       --preview "eval $git_diff_preview {1} | eval ${FIT_PAGER_DIFF}" \
-      --bind "alt-r:toggle-preview" \
       --bind "alt-s:execute(fit status)+reload(eval ${git_diff} | sed -e '\$d')" \
       --bind "alt-d:execute(eval $git_diff_preview {1} | eval ${FIT_PAGER_DIFF} | less -R)"
 }
