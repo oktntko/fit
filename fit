@@ -38,8 +38,8 @@ fit() {
   local func_name
   func_name="$1"
 
-  if [ "$#" = '0' ]; then # 引数なしの時は info
-    func_name="info"
+  if [ "$#" = '0' ]; then # 引数なしの時は help
+    func_name="help"
   else
     shift
   fi

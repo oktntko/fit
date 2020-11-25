@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-fit::info() {
+fit::help() {
   echo "$@"
 }
