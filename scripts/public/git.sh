@@ -8,34 +8,34 @@ fit::diff() {
 }
 
 # --------------------------------------------------------------------------------
-# commit group
+# status group
 # --------------------------------------------------------------------------------
 fit::commit() {
-  fit status --commit "$@"
+  fit::status --commit "$@"
 }
 
 fit::add() {
   # 引数がある場合は git add を実行して終了
   [[ $# -ne 0 ]] && git add "$@" && return
 
-  fit status --add
+  fit::status --add
 }
 
 fit::stage() {
-  fit add "$@"
+  fit::add "$@"
 }
 
-# restore --staged             => stage状態を取り消す. stage/unstage
-# restore --worktree(default)  => 変更を取り消す. checkout/reset --hard
 fit::restore() {
+  # restore --staged             => stage状態を取り消す. stage/unstage
+  # restore --worktree(default)  => 変更を取り消す. checkout/reset --hard
   # 引数がある場合は git restore を実行して終了
   [[ $# -ne 0 ]] && git restore "$@" && return
 
-  fit status --restore
+  fit::status --restore
 }
 
 fit::unstage() {
-  fit restore "$@"
+  fit::restore "$@"
 }
 
 # --------------------------------------------------------------------------------

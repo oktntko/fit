@@ -10,7 +10,7 @@
 
 # 📝 Usage
 
-## commit group
+## status group
   - `fit commit` -> Enter to commit.
   - `fit status` -> show preview.
   - `fit stage/add` -> Enter to add.
