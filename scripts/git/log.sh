@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+# git log [<options>] [<revision range>] [[--] <path>…​]
+
 fit::log() {
+
   local header
   header="🔹KeyBindings🔹
   Ctrl+D select two commit and Ctrl+D then git diff.
@@ -21,7 +24,7 @@ fit::log() {
   # git show HEAD:[ファイル名] でHEADのファイル名の中身を表示できる
   # git diff HEAD^ HEAD と git show はファイルの差分としては同じ
 
-  fit core::log |
+  fit::core::log "$@" |
     fit::fzf \
       --header "$header" \
       --multi \
@@ -29,7 +32,7 @@ fit::log() {
       --preview "fit core::log::extract {} | xargs fit log::preview" \
       --bind "ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)"
 
-  fit core::log -10 && return
+  fit core::log -10 "$@" && return
 }
 
 fit::log::preview() {
@@ -64,12 +67,12 @@ fit::log::diff() {
 }
 
 fit::core::log() {
-  git log "$@" \
+  git log \
     --graph \
     --color=always \
     --pretty="[%C(yellow)%h%Creset]%C(auto)%d%Creset %s %C(dim)%an%Creset (%C(blue)%ad%Creset)" \
     --date=format:"%Y-%m-%d" \
-    "${1:-"--all"}"
+    "$@"
 }
 
 fit::core::log::extract() {

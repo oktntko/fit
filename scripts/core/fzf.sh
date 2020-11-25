@@ -100,6 +100,7 @@ fit::fzf() {
     --bind "alt-d:deselect-all" \
     --bind "alt-r:toggle-preview" \
     --bind "alt-e:toggle-preview-wrap" \
+    --bind "alt-p:execute(echo {} >/dev/tty)" \
     --bind "shift-up:preview-up" \
     --bind "shift-down:preview-down" \
     --bind "shift-left:preview-page-up" \
