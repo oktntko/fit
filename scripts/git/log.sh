@@ -2,7 +2,11 @@
 
 # git log [<options>] [<revision range>] [[--] <path>…​]
 
-fit::log() {
+fit::core::log() {
+
+  # for x in "$@"; do
+  #   # オプションがあったらプレビューは非表示
+  # done
 
   local header
   header="🔹KeyBindings🔹
@@ -24,15 +28,14 @@ fit::log() {
   # git show HEAD:[ファイル名] でHEADのファイル名の中身を表示できる
   # git diff HEAD^ HEAD と git show はファイルの差分としては同じ
 
-  fit::core::log "$@" |
+  fit::core::log::format "$@" |
     fit::fzf \
       --header "$header" \
       --multi \
-      --bind "alt-r:toggle-preview" \
       --preview "fit core::log::extract {} | xargs fit log::preview" \
       --bind "ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)"
 
-  fit core::log -10 "$@" && return
+  fit::core::log::format -10 "$@" && return
 }
 
 fit::log::preview() {
@@ -66,7 +69,7 @@ fit::log::diff() {
   fit::diff "${array[0]}" "${array[1]}"
 }
 
-fit::core::log() {
+fit::core::log::format() {
   git log \
     --graph \
     --color=always \

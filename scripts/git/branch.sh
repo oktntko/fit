@@ -31,7 +31,7 @@ fit::branch() {
         --preview "fit branch::preview {1}" \
         --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
         --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)" \
-        --bind "ctrl-l:execute(fit log {1})+reload(eval $branches)"
+        --bind "ctrl-l:execute(fit core::log {1})+reload(eval $branches)"
   )
 
   if [[ $? == 0 ]]; then
