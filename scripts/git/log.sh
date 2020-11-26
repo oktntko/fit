@@ -14,26 +14,16 @@ fit::core::log() {
 
 "
 
-  # TODO: 2つだけ選択して git diff 又は git difftool
-  # 流れ
-  # git fetch => git branch -r => git diff (分岐前) (最終コミット)
-  # fit branch => 詳細 => fit log => アクション => fit diff
-  # できそうなコマンド
-  # git diff [old commit] [new commit]
-  # git diff --name-only [old commit] [new commit]
-  # --- ファイル名の一覧
-  # git diff [old commit] [new commit] [ファイル名]
-  # --- ファイルの中の差分
-  # git show はその時点の差分又はファイルを表示するだけ
-  # git show HEAD:[ファイル名] でHEADのファイル名の中身を表示できる
-  # git diff HEAD^ HEAD と git show はファイルの差分としては同じ
+  local fit_fzf
+  fit_fzf="fit::fzf \\
+    --header \"$header\" \\
+    --multi \\
+    --preview \"fit core::log::extract {} | xargs fit log::preview\" \\
+    --bind \"ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)\" \\
+"
+  # optionがある時は --preview-window=:hidden
 
-  fit::core::log::format "$@" |
-    fit::fzf \
-      --header "$header" \
-      --multi \
-      --preview "fit core::log::extract {} | xargs fit log::preview" \
-      --bind "ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)"
+  fit::core::log::format "$@" | eval "$fit_fzf"
 
   fit::core::log::format -10 "$@" && return
 }
