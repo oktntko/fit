@@ -107,3 +107,11 @@ fit::fzf() {
     --bind "shift-right:preview-page-down" \
     "$@"
 }
+
+# 随時追加していく
+fit::git() {
+  git \
+    -c color.ui=always \
+    -c log.decorate=true \
+    "$@"
+}

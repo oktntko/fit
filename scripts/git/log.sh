@@ -3,16 +3,23 @@
 # git log [<options>] [<revision range>] [[--] <path>…​]
 
 fit::core::log() {
+  local preview_window_hidden
 
-  # for x in "$@"; do
-  #   # オプションがあったらプレビューは非表示
-  # done
+  for x in "$@"; do
+    if [[ ${x} =~ -.* ]]; then
+      # オプションがあったらプレビューは非表示
+      preview_window_hidden="--preview-window=:hidden"
+      break
+    fi
+  done
 
   local header
   header="🔹KeyBindings🔹
   Ctrl+D select two commit and Ctrl+D then git diff.
 
 "
+  # オプションがあったら header も非表示。 普通に git log | fzf したときと同じ
+  [[ -n ${preview_window_hidden} ]] && header=""
 
   local fit_fzf
   fit_fzf="fit::fzf \\
@@ -20,12 +27,12 @@ fit::core::log() {
     --multi \\
     --preview \"fit core::log::extract {} | xargs fit log::preview\" \\
     --bind \"ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)\" \\
+    ${preview_window_hidden}
 "
-  # optionがある時は --preview-window=:hidden
 
-  fit::core::log::format "$@" | eval "$fit_fzf"
+  if [[ -n ${preview_window_hidden} ]]; then fit::git log "$@"; else fit::core::log::format "$@"; fi | eval "$fit_fzf"
 
-  fit::core::log::format -10 "$@" && return
+  [[ -z ${preview_window_hidden} ]] && fit::core::log::format "$@" -10 && return
 }
 
 fit::log::preview() {
