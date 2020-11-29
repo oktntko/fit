@@ -2,7 +2,7 @@
 
 # git log [<options>] [<revision range>] [[--] <path>…​]
 
-fit::core::log() {
+fit::log::fzf() {
   local preview_window_hidden
 
   for x in "$@"; do
@@ -25,14 +25,14 @@ fit::core::log() {
   fit_fzf="fit::fzf \\
     --header \"$header\" \\
     --multi \\
-    --preview \"fit core::log::extract {} | xargs fit log::preview\" \\
-    --bind \"ctrl-d:execute(fit core::log::extract {} {+} | xargs fit log::diff)\" \\
+    --preview \"fit log::extract {} | xargs fit log::preview\" \\
+    --bind \"ctrl-d:execute(fit log::extract {} {+} | xargs fit log::diff)\" \\
     ${preview_window_hidden}
 "
 
-  if [[ -n ${preview_window_hidden} ]]; then fit::git log "$@"; else fit::core::log::format "$@"; fi | eval "$fit_fzf"
+  if [[ -n ${preview_window_hidden} ]]; then fit::git log "$@"; else fit::log::format "$@"; fi | eval "$fit_fzf"
 
-  [[ -z ${preview_window_hidden} ]] && fit::core::log::format "$@" -10 && return
+  [[ -z ${preview_window_hidden} ]] && fit::log::format "$@" -10 && return
 }
 
 fit::log::preview() {
@@ -66,7 +66,7 @@ fit::log::diff() {
   fit::diff "${array[0]}" "${array[1]}"
 }
 
-fit::core::log::format() {
+fit::log::format() {
   git log \
     --graph \
     --color=always \
@@ -75,10 +75,6 @@ fit::core::log::format() {
     "$@"
 }
 
-fit::core::log::extract() {
+fit::log::extract() {
   echo "$@" | grep -Eo '\[[a-f0-9]{7}\]' | sed -e 's/\W//g' | uniq
-}
-
-fit::log::list::extract() {
-  echo "$@" | grep -Eo '[a-f0-9]+' | head -1
 }
