@@ -105,6 +105,7 @@ fit::fzf() {
     --bind "shift-down:preview-down" \
     --bind "shift-left:preview-page-up" \
     --bind "shift-right:preview-page-down" \
+    --preview-window "${FIT_PREVIEW_POSITION}:${FIT_PREVIEW_SIZE}:${FIT_PREVIEW_BORDER_SHAPE}:${FIT_PREVIEW_WRAP}:${FIT_PREVIEW_CYCLE}:${FIT_PREVIEW_HIDDEN}" \
     "$@"
 }
 
