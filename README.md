@@ -99,7 +99,7 @@
 
 ```zsh
 # for zplug
-zplug 'oktntko/fit'
+zplug "oktntko/fit", as:command, use:fit
 ```
 
 # Anything Else
