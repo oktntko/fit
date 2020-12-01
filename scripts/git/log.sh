@@ -43,7 +43,7 @@ fit::log::fzf() {
   done
 
   local header
-  header="🔹KeyBindings
+  header="${B_GRAY} ${NORMAL} ${WHITE}KeyBindings${NORMAL}
   ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git show${NORMAL}
   ${CYAN}ctrl+F${NORMAL} ${WHITE}❯ git difftool${NORMAL} (multiselect)
   ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} diff${NORMAL} (multiselect)
@@ -69,9 +69,9 @@ fit::log::fzf() {
         --color=always \\
         --pretty=\"[%C(yellow)%h%Creset]%C(auto)%d%Creset %s %C(dim)%an%Creset (%C(blue)%ad%Creset)\" \\
         --date=format:\"%Y-%m-%d\" \\
-        \"${all_branches}\" \\
-        \"${tags}\" \\
-        \"${remotes}\" \\
+        ${all_branches} \\
+        ${tags} \\
+        ${remotes} \\
         $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/\n/ /g' | sed -e 's/ \+/ /g'
     )
   fi
@@ -84,12 +84,10 @@ fit::log::fzf() {
     --bind \"ctrl-d:execute(fit log::actions::call-diff {+})\" \\
     --bind \"ctrl-f:execute(fit log::actions::call-difftool {+})\" \\
     --bind \"enter:execute(fit log::actions::call-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
-    ${preview_window_hidden}
+    ${preview_window_hidden} \\
 "
 
   eval "${git_log}" | sed -e '$d' | eval "$fit_fzf"
-
-  [[ -z ${preview_window_hidden} ]] && _fit::log::format "$@" -10 && return
 }
 
 fit::log::preview() {
@@ -107,11 +105,21 @@ fit::log::preview() {
 }
 
 fit::log::actions::call-diff() {
-  local extracts
-  extracts=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
-  [[ -z ${extracts} ]] && return
+  local commits
+  commits=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
+  [[ -z ${commits} ]] && return
 
-  fit::diff "${extracts[*]}"
+  fit::diff "${commits[*]}"
+}
+
+fit::log::actions::call-difftool() {
+  local commits
+  commits=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
+  [[ -z ${commits} ]] && return
+
+  # コミットに[65f20ba ]という感じでスペースが入るためダブルクォーテーションは外す
+  # shellcheck disable=2086
+  fit::git difftool ${commits[*]}
 }
 
 fit::log::actions::call-show() {
