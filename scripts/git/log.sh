@@ -134,15 +134,6 @@ fit::log::actions::call-git-show() {
   fit::git show "${commit}"
 }
 
-_fit::log::format() {
-  git log \
-    --graph \
-    --color=always \
-    --pretty="[%C(yellow)%h%Creset]%C(auto)%d%Creset %s %C(dim)%an%Creset (%C(blue)%ad%Creset)" \
-    --date=format:"%Y-%m-%d" \
-    "$@"
-}
-
 _fit::log::extract() {
   echo "$@" | grep -Eo '\[[a-f0-9]{7}\]' | sed -e 's/\W//g'
 }
