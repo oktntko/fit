@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-fit::branch() {
+fit::branch::fzf() {
   local mode
   mode="branch"
   [[ $1 == "--switch" ]] && mode="switch" && shift
@@ -11,14 +11,17 @@ fit::branch() {
   [[ $# -ne 0 ]] && git branch "$@" && return
 
   local header
+  header="${B_GREEN} ${NORMAL} ${S_UNDERLINE}${WHITE}KeyBindings${NORMAL}"
+
   if [[ $mode != "branch" ]]; then
-    header="${YELLOW}ENTER${NORMAL} to ${YELLOW}${mode}${NORMAL} branch
-"
+    header="${header}
+  ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git ${YELLOW}${mode}${NORMAL} [branch]${NORMAL}"
   fi
+
   header="${header}
-  Ctrl+N : Rename branch.
-  Ctrl+D : Delete branch(force).
-  Ctrl+L : Log view.
+  ${CYAN}ctrl+N${NORMAL} ${WHITE}❯ git branch -m${NORMAL}
+  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ git branch -D${NORMAL} (force)
+  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} log${NORMAL} (multiselect)
 
 "
 
@@ -152,10 +155,10 @@ fit::core::branch() {
   if [[ -n $locals ]]; then
     echo "${S_UNDERLINE}Local branches:${NORMAL}"
     echo "${locals}"
-    [[ -n $remotes ]] && echo
+    [[ -n ${remotes} ]] && echo
   fi
 
-  if [[ -n $remotes ]]; then
+  if [[ -n ${remotes} ]]; then
     echo "${S_UNDERLINE}Remotes branches:${NORMAL}"
     echo "${remotes}"
   fi

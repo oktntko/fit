@@ -41,25 +41,29 @@ fit::unstage() {
 # --------------------------------------------------------------------------------
 # branch group
 # --------------------------------------------------------------------------------
+fit::branch() {
+  fit::branch::fzf --switch "$@"
+}
+
 fit::switch() {
   # 引数がある場合は git switch を実行して終了
   [[ $# -ne 0 ]] && git switch "$@" && return
 
-  fit branch --switch "$@"
+  fit::branch::fzf --switch "$@"
 }
 
 fit::rebase() {
   # 引数がある場合は git rebase を実行して終了
   [[ $# -ne 0 ]] && git rebase "$@" && return
 
-  fit branch --rebase "$@"
+  fit::branch::fzf --rebase "$@"
 }
 
 fit::merge() {
   # 引数がある場合は git merge を実行して終了
   [[ $# -ne 0 ]] && git merge "$@" && return
 
-  fit branch --merge "$@"
+  fit::branch::fzf --merge "$@"
 }
 
 # --------------------------------------------------------------------------------
