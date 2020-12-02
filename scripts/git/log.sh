@@ -3,13 +3,22 @@
 # git log [<options>] [<revision range>] [[--] <path>…​]
 
 fit::log::fzf() {
+  local header
+  header="${B_GREEN} ${NORMAL} ${S_UNDERLINE}${WHITE}KeyBindings${NORMAL}
+  ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git show${NORMAL}
+  ${CYAN}ctrl+F${NORMAL} ${WHITE}❯ git difftool${NORMAL} (multiselect)
+  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} diff${NORMAL} (multiselect)
+
+"
+
   local -a options branches pathes
   options=()
   branches=()
   pathes=()
 
-  local all_branches tags remotes is_path
+  local all_branches tags remotes is_path preview_window_hidden
 
+  # TODO: オプションの選別
   for x in "$@"; do
     if [[ ${x} == -- ]]; then
       is_path=true # [--]区切り文字 以降はすべて path
@@ -29,7 +38,10 @@ fit::log::fzf() {
       # options
       options=("${options[*]}" "${x}")
 
-      # TODO: オプションの選別
+      # オプションがあったらプレビューは非表示
+      preview_window_hidden="--preview-window=:hidden"
+      # オプションがあったら header も非表示。 普通に git log | fzf したときと同じ
+      header=""
 
     else
       # commit or path
@@ -42,38 +54,20 @@ fit::log::fzf() {
     fi
   done
 
-  local header
-  header="${B_GRAY} ${NORMAL} ${WHITE}KeyBindings${NORMAL}
-  ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git show${NORMAL}
-  ${CYAN}ctrl+F${NORMAL} ${WHITE}❯ git difftool${NORMAL} (multiselect)
-  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} diff${NORMAL} (multiselect)
-
-"
-
-  local preview_window_hidden
-  if [[ ${#options[*]} -gt 0 ]]; then
-    # オプションがあったらプレビューは非表示
-    preview_window_hidden="--preview-window=:hidden"
-    # オプションがあったら header も非表示。 普通に git log | fzf したときと同じ
-    header=""
-  fi
-
   # コマンドを生成
   local git_log
   if [[ ${#options[*]} -gt 0 ]]; then
     git_log="fit git log \"$*\""
   else
-    git_log=$(
-      echo "git log \\
-        --graph \\
-        --color=always \\
-        --pretty=\"[%C(yellow)%h%Creset]%C(auto)%d%Creset %s %C(dim)%an%Creset (%C(blue)%ad%Creset)\" \\
-        --date=format:\"%Y-%m-%d\" \\
-        ${all_branches} \\
-        ${tags} \\
-        ${remotes} \\
-        $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/\n/ /g' | sed -e 's/ \+/ /g'
-    )
+    git_log="git log \\
+      --graph \\
+      --color=always \\
+      --pretty=\"[%C(yellow)%h%Creset]%C(auto)%d%Creset %s %C(dim)%an%Creset (%C(blue)%ad%Creset)\" \\
+      --date=format:\"%Y-%m-%d\" \\
+      ${all_branches} \\
+      ${tags} \\
+      ${remotes} \\
+      $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}"
   fi
 
   local fit_fzf
@@ -87,7 +81,7 @@ fit::log::fzf() {
     ${preview_window_hidden} \\
 "
 
-  eval "${git_log}" | sed -e '$d' | eval "$fit_fzf"
+  eval "${git_log}" | eval "${fit_fzf}"
 }
 
 fit::log::preview() {
