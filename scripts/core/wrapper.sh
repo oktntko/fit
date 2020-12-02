@@ -95,6 +95,7 @@ fit::fzf() {
     --cycle \
     --no-mouse \
     --no-multi \
+    --no-info \
     --bind "alt-a:select-all" \
     --bind "alt-s:toggle-all" \
     --bind "alt-d:deselect-all" \

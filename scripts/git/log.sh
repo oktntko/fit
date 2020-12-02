@@ -3,70 +3,134 @@
 # git log [<options>] [<revision range>] [[--] <path>…​]
 
 fit::log::fzf() {
-  local preview_window_hidden
+  local -a options branches pathes
+  options=()
+  branches=()
+  pathes=()
+
+  local all_branches tags remotes is_path
 
   for x in "$@"; do
-    if [[ ${x} =~ -.* ]]; then
-      # オプションがあったらプレビューは非表示
-      preview_window_hidden="--preview-window=:hidden"
-      break
+    if [[ ${x} == -- ]]; then
+      is_path=true # [--]区切り文字 以降はすべて path
+    elif [[ ${x} == --oneline || ${x} == --decorate || ${x} == --graph ]]; then
+      : # --oneline --decorate --graph は無視
+
+    elif [[ ${x} == --branches ]]; then
+      all_branches="--branches" # branchesは特別扱い
+
+    elif [[ ${x} == --tags ]]; then
+      tags="--tags" # tagsは特別扱い
+
+    elif [[ ${x} == --remotes ]]; then
+      remotes="--remotes" # remotesは特別扱い
+
+    elif [[ ${x} =~ -.* ]]; then
+      # options
+      options=("${options[*]}" "${x}")
+
+      # TODO: オプションの選別
+
+    else
+      # commit or path
+      if [[ "${is_path}" || -f ${x} ]]; then
+        pathes=("${pathes[*]}" "${x}")
+        is_path=true
+      else
+        branches=("${branches[*]}" "${x}")
+      fi
     fi
   done
 
   local header
-  header="🔹KeyBindings🔹
-  Ctrl+D select two commit and Ctrl+D then git diff.
+  header="${B_GRAY} ${NORMAL} ${WHITE}KeyBindings${NORMAL}
+  ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git show${NORMAL}
+  ${CYAN}ctrl+F${NORMAL} ${WHITE}❯ git difftool${NORMAL} (multiselect)
+  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} diff${NORMAL} (multiselect)
 
 "
-  # オプションがあったら header も非表示。 普通に git log | fzf したときと同じ
-  [[ -n ${preview_window_hidden} ]] && header=""
+
+  local preview_window_hidden
+  if [[ ${#options[*]} -gt 0 ]]; then
+    # オプションがあったらプレビューは非表示
+    preview_window_hidden="--preview-window=:hidden"
+    # オプションがあったら header も非表示。 普通に git log | fzf したときと同じ
+    header=""
+  fi
+
+  # コマンドを生成
+  local git_log
+  if [[ ${#options[*]} -gt 0 ]]; then
+    git_log="fit git log \"$*\""
+  else
+    git_log=$(
+      echo "git log \\
+        --graph \\
+        --color=always \\
+        --pretty=\"[%C(yellow)%h%Creset]%C(auto)%d%Creset %s %C(dim)%an%Creset (%C(blue)%ad%Creset)\" \\
+        --date=format:\"%Y-%m-%d\" \\
+        ${all_branches} \\
+        ${tags} \\
+        ${remotes} \\
+        $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/\n/ /g' | sed -e 's/ \+/ /g'
+    )
+  fi
 
   local fit_fzf
   fit_fzf="fit::fzf \\
     --header \"$header\" \\
     --multi \\
-    --preview \"fit log::extract {} | xargs fit log::preview\" \\
-    --bind \"ctrl-d:execute(fit log::extract {} {+} | xargs fit log::diff)\" \\
-    ${preview_window_hidden}
+    --preview \"fit log::preview {}\" \\
+    --bind \"ctrl-d:execute(fit log::actions::call-diff {+})\" \\
+    --bind \"ctrl-f:execute(fit log::actions::call-difftool {+})\" \\
+    --bind \"enter:execute(fit log::actions::call-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
+    ${preview_window_hidden} \\
 "
 
-  if [[ -n ${preview_window_hidden} ]]; then fit::git log "$@"; else fit::log::format "$@"; fi | eval "$fit_fzf"
-
-  [[ -z ${preview_window_hidden} ]] && fit::log::format "$@" -10 && return
+  eval "${git_log}" | sed -e '$d' | eval "$fit_fzf"
 }
 
 fit::log::preview() {
-  [[ -z $1 ]] && return
-  echo "${CYAN}❯ git diff $1^ $1${NORMAL} --stat --color=always"
+  local commit
+  commit=$(_fit::log::extract "$@")
+  [[ -z ${commit} ]] && return
+
+  echo "${CYAN}❯ git diff ${commit}^ ${commit}${NORMAL}"
   echo
-  git diff "$1"^ "$1" --stat --color=always
+  fit::git diff "${commit}"^ "${commit}" --stat --color=always
   echo
-  echo "${CYAN}❯ git show $1${NORMAL} --decorate --color=always"
+  echo "${CYAN}❯ git show ${commit}${NORMAL}"
   echo
-  git show "$1" --decorate --color=always | eval "${FIT_PAGER_SHOW}"
+  git show "${commit}" --decorate --color=always | eval "${FIT_PAGER_SHOW}"
 }
 
-fit::log::diff() {
-  # 引数パターン
-  # 引数なし     => ありえない(現在の行)
-  # 引数１個     => フォーカス行                            => git diff フォーカス行と最新の行の比較
-  # 引数２個     => フォーカス行 選択行                     => git diff フォーカス行と選択行の比較
-  # 引数３個     => フォーカス行 選択行１ 選択行２          => git diff 選択行１と選択行２の比較
-  # 引数３個以上 => フォーカス行 選択行１ 選択行２ 選択行３ => git diff 選択行２と選択行３の比較
-  local -a array=("HEAD")
-  local opt
-  for opt in "$@"; do
-    if [[ ${#array[@]} -ge 2 ]]; then
-      array=("${array[@]:0:${#array[@]}-1}")
-    fi
-    array=("$opt" "${array[@]}")
-    shift
-  done
+fit::log::actions::call-diff() {
+  local commits
+  commits=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
+  [[ -z ${commits} ]] && return
 
-  fit::diff "${array[0]}" "${array[1]}"
+  fit::diff "${commits[*]}"
 }
 
-fit::log::format() {
+fit::log::actions::call-difftool() {
+  local commits
+  commits=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
+  [[ -z ${commits} ]] && return
+
+  # コミットに[65f20ba ]という感じでスペースが入るためダブルクォーテーションは外す
+  # shellcheck disable=2086
+  fit::git difftool ${commits[*]}
+}
+
+fit::log::actions::call-show() {
+  local commit
+  commit=$(_fit::log::extract "$@")
+  [[ -z ${commit} ]] && return
+
+  fit::git show "${commit}"
+}
+
+_fit::log::format() {
   git log \
     --graph \
     --color=always \
@@ -75,6 +139,6 @@ fit::log::format() {
     "$@"
 }
 
-fit::log::extract() {
+_fit::log::extract() {
   echo "$@" | grep -Eo '\[[a-f0-9]{7}\]' | sed -e 's/\W//g' | uniq
 }
