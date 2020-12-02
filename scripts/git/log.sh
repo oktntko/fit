@@ -81,9 +81,9 @@ fit::log::fzf() {
     --header \"$header\" \\
     --multi \\
     --preview \"fit log::preview {}\" \\
-    --bind \"ctrl-d:execute(fit log::actions::call-diff {+})\" \\
-    --bind \"ctrl-f:execute(fit log::actions::call-difftool {+})\" \\
-    --bind \"enter:execute(fit log::actions::call-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
+    --bind \"ctrl-d:execute(fit log::actions::call-fit-diff {+})\" \\
+    --bind \"ctrl-f:execute(fit log::actions::call-git-difftool {+})\" \\
+    --bind \"enter:execute(fit log::actions::call-git-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
     ${preview_window_hidden} \\
 "
 
@@ -104,25 +104,35 @@ fit::log::preview() {
   git show "${commit}" --decorate --color=always | eval "${FIT_PAGER_SHOW}"
 }
 
-fit::log::actions::call-diff() {
-  local commits
-  commits=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
-  [[ -z ${commits} ]] && return
+# /*
+# call fit diff.
+# @param string[] commits. last selected is first element[0]. first selected is last element[-1].
+# */
+fit::log::actions::call-fit-diff() {
+  local -a commits
+  mapfile -t commits < <(_fit::log::extract "$@")
+  [[ ${#commits[*]} -le 0 ]] && return
 
-  fit::diff "${commits[*]}"
+  # $()をダブルクォーテーションでくくると空文字がパラメータになるのでくくらない
+  # shellcheck disable=2046
+  fit::diff "${commits[0]}" $([[ ${#commits[*]} -gt 1 ]] && echo "${commits[-1]}")
 }
 
-fit::log::actions::call-difftool() {
-  local commits
-  commits=$(_fit::log::extract "$@" | awk -v 'ORS= ' '{print $1}')
-  [[ -z ${commits} ]] && return
+# /*
+# call git difftool.
+# @param string[] commits. last selected is first element[0]. first selected is last element[-1].
+# */
+fit::log::actions::call-git-difftool() {
+  local -a commits
+  mapfile -t commits < <(_fit::log::extract "$@")
+  [[ ${#commits[*]} -le 0 ]] && return
 
-  # コミットに[65f20ba ]という感じでスペースが入るためダブルクォーテーションは外す
-  # shellcheck disable=2086
-  fit::git difftool ${commits[*]}
+  # [-1]が最後の要素を示すらしい
+  # shellcheck disable=2046
+  fit::git difftool "${commits[0]}" $([[ ${#commits[*]} -gt 1 ]] && echo "${commits[-1]}")
 }
 
-fit::log::actions::call-show() {
+fit::log::actions::call-git-show() {
   local commit
   commit=$(_fit::log::extract "$@")
   [[ -z ${commit} ]] && return
@@ -140,5 +150,5 @@ _fit::log::format() {
 }
 
 _fit::log::extract() {
-  echo "$@" | grep -Eo '\[[a-f0-9]{7}\]' | sed -e 's/\W//g' | uniq
+  echo "$@" | grep -Eo '\[[a-f0-9]{7}\]' | sed -e 's/\W//g'
 }
