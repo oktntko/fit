@@ -34,7 +34,7 @@ fit::branch::fzf() {
         --preview "fit branch::preview {1}" \
         --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
         --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)" \
-        --bind "ctrl-l:execute(fit log::fzf {1})+reload(eval $branches)"
+        --bind "ctrl-l:abort+execute(fit branch)"
   )
 
   if [[ $? == 0 ]]; then

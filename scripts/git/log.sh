@@ -4,10 +4,10 @@
 
 fit::log::fzf() {
   local header
-  header="${B_GREEN} ${NORMAL} ${S_UNDERLINE}${WHITE}KeyBindings${NORMAL}
-  ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git show${NORMAL}
-  ${CYAN}ctrl+F${NORMAL} ${WHITE}❯ git difftool${NORMAL} (multiselect)
-  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} diff${NORMAL} (multiselect)
+  header="${GRAY}*${NORMAL} ${WHITE}KeyBindings${NORMAL}                           ${GRAY}*${NORMAL} ${WHITE}Change Options${NORMAL}
+| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} show                     | Ctrl+${WHITE}B${NORMAL} ❯ ${GREEN}fit${NORMAL} log --branches
+| Ctrl+${WHITE}F${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} difftool (multiselect)   | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} log --remotes
+| Ctrl+${WHITE}D${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} diff (multiselect)       | Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} log --all
 
 "
 
@@ -28,11 +28,11 @@ fit::log::fzf() {
     elif [[ ${x} == --branches ]]; then
       all_branches="--branches" # branchesは特別扱い
 
-    elif [[ ${x} == --tags ]]; then
-      tags="--tags" # tagsは特別扱い
-
     elif [[ ${x} == --remotes ]]; then
       remotes="--remotes" # remotesは特別扱い
+
+    elif [[ ${x} == --all ]]; then
+      tags="--all" # allは特別扱い
 
     elif [[ ${x} =~ -.* ]]; then
       # options
@@ -75,9 +75,12 @@ fit::log::fzf() {
     --header \"$header\" \\
     --multi \\
     --preview \"fit log::preview {}\" \\
+    --bind \"enter:execute(fit log::actions::call-git-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
     --bind \"ctrl-d:execute(fit log::actions::call-fit-diff {+})\" \\
     --bind \"ctrl-f:execute(fit log::actions::call-git-difftool {+})\" \\
-    --bind \"enter:execute(fit log::actions::call-git-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
+    --bind \"ctrl-b:abort+execute(fit log --branches)\" \\
+    --bind \"ctrl-r:abort+execute(fit log --remotes)\" \\
+    --bind \"ctrl-a:abort+execute(fit log --all)\" \\
     ${preview_window_hidden} \\
 "
 
