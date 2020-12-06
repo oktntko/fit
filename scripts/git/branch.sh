@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+# git branch [--color[=<when>] | --no-color] [--show-current]
+# 	[-v [--abbrev=<length> | --no-abbrev]]
+# 	[--column[=<options>] | --no-column] [--sort=<key>]
+# 	[--merged [<commit>]] [--no-merged [<commit>]]
+# 	[--contains [<commit>]] [--no-contains [<commit>]]
+# 	[--points-at <object>] [--format=<format>]
+# 	[(-r | --remotes) | (-a | --all)]
+# 	[--list] [<pattern>…​]
+# git branch [--track | --no-track] [-f] <branchname> [<start-point>]
+# git branch (--set-upstream-to=<upstream> | -u <upstream>) [<branchname>]
+# git branch --unset-upstream [<branchname>]
+# git branch (-m | -M) [<oldbranch>] <newbranch>
+# git branch (-c | -C) [<oldbranch>] <newbranch>
+# git branch (-d | -D) [-r] <branchname>…​
+# git branch --edit-description [<branchname>]
+
 fit::branch::fzf() {
   local mode
   mode="branch"
@@ -11,35 +27,30 @@ fit::branch::fzf() {
   [[ $# -ne 0 ]] && git branch "$@" && return
 
   local header
-  header="${B_GREEN} ${NORMAL} ${S_UNDERLINE}${WHITE}KeyBindings${NORMAL}"
-
-  if [[ $mode != "branch" ]]; then
-    header="${header}
-  ${CYAN}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯ git ${YELLOW}${mode}${NORMAL} [branch]${NORMAL}"
-  fi
-
-  header="${header}
-  ${CYAN}ctrl+N${NORMAL} ${WHITE}❯ git branch -m${NORMAL}
-  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ git branch -D${NORMAL} (force)
-  ${CYAN}ctrl+D${NORMAL} ${WHITE}❯ ${GREEN}fit${WHITE} log${NORMAL} (multiselect)
+  header="* KeyBindings                           * Change Options
+| ENTER   git ${mode} [branch]         | Ctrl+S ❯ fit switch
+| Ctrl+N  git branch -m                | Ctrl+R ❯ fit merge
+| Ctrl+D  fit branch -D (force)        | Ctrl+B ❯ fit rebase
+| Ctrl+L  fit log (multiselect)
 
 "
 
-  local branches branch
-  branches="fit core::branch"
-  branch=$(
-    eval "$branches" |
-      fit::fzf \
-        --header "$header" \
-        --preview "fit branch::preview {1}" \
-        --bind "ctrl-n:execute(fit branch::rename {1})+reload(eval $branches)" \
-        --bind "ctrl-d:execute(fit branch::delete {1})+reload(eval $branches)" \
-        --bind "ctrl-l:abort+execute(fit branch)"
-  )
+  # コマンドを生成
+  local git_branch fit_fzf
+  git_branch="fit branch::branch-list"
+  fit_fzf="fit::fzf \\
+        --header \"$header\" \\
+        --preview \"fit branch::preview {1}\" \\
+        --bind \"ctrl-n:execute(fit branch::actions::call-git-branch-rename {1})+reload(eval $git_branch)\" \\
+        --bind \"ctrl-d:execute(fit branch::actions::call-git-branch-delete {1})+reload(eval $git_branch)\" \\
+  "
+
+  local branch
+  branch=$(eval "${git_branch}" | eval "${fit_fzf}")
 
   if [[ $? == 0 ]]; then
     branch=$(echo "$branch" | awk '{ print $1 }')
-    ! fit::core::branch::is-valid-branch "$branch" && echo "Please select branch name." && return
+    ! fit::utils::is-valid-branch "$branch" && echo "Please select branch name." && return
 
     if [[ $mode == "switch" ]]; then
       fit::branch::switch "$branch"
@@ -51,49 +62,39 @@ fit::branch::fzf() {
       fit::branch::rebase "$branch"
     fi
   fi
+}
 
-  git branch -vv && return
+fit::branch::branch-list() {
+  local locals remotes
+  locals=$(fit git branch -vv | sed -e 's/\(^\* \|^  \)//g')
+  remotes=$(fit git branch -vv -r | sed -e 's/\(^\* \|^  \)//g')
+
+  if [[ -n $locals ]]; then
+    echo "${S_UNDERLINE}Local branches:${NORMAL}"
+    echo "${locals}"
+    [[ -n ${remotes} ]] && echo
+  fi
+
+  if [[ -n ${remotes} ]]; then
+    echo "${S_UNDERLINE}Remotes branches:${NORMAL}"
+    echo "${remotes}"
+  fi
 }
 
 fit::branch::preview() {
-  ! fit::core::branch::is-valid-branch "$1" && return
+  ! fit::utils::is-valid-branch "$1" && return
 
   git log --graph --oneline --decorate --color=always "$1"
 }
 
-fit::branch::switch() {
-  local branch
-  branch="$1"
-
-  if fit::core::branch::is-remote-branch "$branch"; then
-    git switch -t "$branch"
-  else
-    git switch "$branch"
-  fi
-}
-
-fit::branch::merge() {
-  local branch
-  branch="$1"
-
-  eval "git merge $branch $FIT_MERGE_OPTION"
-}
-
-fit::branch::rebase() {
-  local branch
-  branch="$1"
-
-  eval "git rebase $branch $FIT_REBASE_OPTION"
-}
-
-fit::branch::rename() {
+fit::branch::actions::call-git-branch-rename() {
   # fzf execute で標準入力＋出力を行う例
   # vim とかadd -p とかと同じように 入力 </dev/tty 出力 >/dev/tty が必要
   # TODO: 色の意味を考えないと
   local branch
   branch="$1"
 
-  if ! fit::core::branch::is-valid-branch "$branch" || fit::core::branch::is-remote-branch "$branch"; then
+  if ! fit::utils::is-valid-branch "$branch" || fit::utils::is-remote-branch "$branch"; then
     # 不正なブランチ名 or リモートブランチの場合
     # 思いつく方法が面倒なのでエラーにする
     read -p "${RED}Please select local branch.${NORMAL} [Press any key] ${GREEN}❯${NORMAL} " -r -n 1 -s </dev/tty
@@ -118,23 +119,22 @@ fit::branch::rename() {
   fi
 }
 
-fit::branch::delete() {
+fit::branch::actions::call-git-branch-delete() {
   local branch
   branch="$1"
 
-  if ! fit::core::branch::is-valid-branch "$branch"; then
+  if ! fit::utils::is-valid-branch "$branch"; then
     # 不正なブランチ名の場合
-    read -p "${RED}Please select branch name.${NORMAL} [Press any key] ${GREEN}❯${NORMAL} " -r -n 1 -s </dev/tty
-    echo >/dev/tty
+    fit::utils::error-message "${RED}Please select branch name.${NORMAL}"
     return
   fi
 
   # 削除なので確認しておく
-  read -p "Delete '${branch}' branch? [y/N] ${GREEN}❯${NORMAL} " -r -n 1 -s yn </dev/tty
-  echo >/dev/tty
-  [[ ! $yn =~ y|Y ]] && return
+  if ! fit::utils::confirm-message "${RED}Delete${NORMAL} '${branch}' branch? [y/N] ${GREEN}❯${NORMAL} "; then
+    return
+  fi
 
-  if fit::core::branch::is-remote-branch "$branch"; then
+  if fit::utils::is-remote-branch "$branch"; then
     # リモートはちょっと面倒
     local remote
     remote=$(git remote | head -1)
@@ -147,37 +147,27 @@ fit::branch::delete() {
   fi
 }
 
-fit::core::branch() {
-  local locals remotes
-  locals=$(git branch --color -vv | sed -e 's/\(^\* \|^  \)//g')
-  remotes=$(git branch --color -vv -r | sed -e 's/\(^\* \|^  \)//g')
+fit::branch::actions::call-git-switch() {
+  local branch
+  branch="$1"
 
-  if [[ -n $locals ]]; then
-    echo "${S_UNDERLINE}Local branches:${NORMAL}"
-    echo "${locals}"
-    [[ -n ${remotes} ]] && echo
-  fi
-
-  if [[ -n ${remotes} ]]; then
-    echo "${S_UNDERLINE}Remotes branches:${NORMAL}"
-    echo "${remotes}"
+  if fit::utils::is-remote-branch "$branch"; then
+    git switch -t "$branch"
+  else
+    git switch "$branch"
   fi
 }
 
-# /*
-# 引数のブランチがリモートブランチかどうか判定する
-# @param string branch.
-# @return boolean true: is remote/ false: is local.
-# */
-fit::core::branch::is-remote-branch() {
-  git branch -r --format="%(refname:short)" | grep -qE "^$1$"
+fit::branch::actions::call-git-merge() {
+  local branch
+  branch="$1"
+
+  eval "git merge $branch $FIT_MERGE_OPTION"
 }
 
-# /*
-# 引数のブランチが存在するブランチかどうか判定する
-# @param string branch.
-# @return boolean true: is valid/ false: not valid.
-# */
-fit::core::branch::is-valid-branch() {
-  git branch -a --format="%(refname:short)" | grep -qE "^$1$"
+fit::branch::actions::call-git-rebase() {
+  local branch
+  branch="$1"
+
+  eval "git rebase $branch $FIT_REBASE_OPTION"
 }

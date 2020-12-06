@@ -42,7 +42,7 @@ fit::unstage() {
 # branch group
 # --------------------------------------------------------------------------------
 fit::branch() {
-  fit::branch::fzf --switch "$@"
+  fit::branch::fzf "$@"
 }
 
 fit::switch() {
