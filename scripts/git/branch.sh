@@ -45,13 +45,13 @@ fit::branch::fzf() {
   [[ ${#options[*]} -gt 0 ]] && git branch "$@" && return
 
   local header
-  header="* KeyBindings                          * Change Options
-| ENTER   git ${mode} [branch]          | Ctrl+A ❯ fit branch (all)
-| Ctrl+N  git branch -m                | Ctrl+G ❯ fit branch --no-merged
-| Ctrl+D  fit branch -D (force)        | Ctrl+E ❯ fit branch --no-merge
-| Ctrl+L  fit log (multiselect)        | Ctrl+S ❯ fit switch
-                                       | Ctrl+R ❯ fit merge
-                                       | Ctrl+B ❯ fit rebase
+  header="${GRAY}*${NORMAL} KeyBindings                           ${GRAY}*${NORMAL} Change Options
+| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}${mode}${NORMAL} [branch]         | Ctrl+${WHITE}A${NORMAL} ❯ ${GREEN}fit${NORMAL} branch (all)
+| Ctrl+${WHITE}N${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} branch -m                | Ctrl+${WHITE}G${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merged
+| Ctrl+${WHITE}D${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch -D (force)        | Ctrl+${WHITE}E${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merge
+| Ctrl+${WHITE}L${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} log (multiselect)        | Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} switch
+                                        | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} merge
+                                        | Ctrl+${WHITE}B${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} rebase
 
 "
 
