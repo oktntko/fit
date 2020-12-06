@@ -80,13 +80,13 @@ fit::branch::fzf() {
     ! fit::utils::is-valid-branch "$branch" && echo "Please select branch name." && return
 
     if [[ $mode == "switch" ]]; then
-      fit::branch::switch "$branch"
+      fit::branch::actions::call-git-switch "$branch"
 
     elif [[ $mode == "merge" ]]; then
-      fit::branch::merge "$branch"
+      fit::branch::actions::call-git-merge "$branch"
 
     elif [[ $mode == "rebase" ]]; then
-      fit::branch::rebase "$branch"
+      fit::branch::actions::call-git-rebase "$branch"
     fi
   fi
 }
