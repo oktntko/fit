@@ -67,6 +67,7 @@ fit::log::fzf() {
       ${all_branches} \\
       ${tags} \\
       ${remotes} \\
+      ${branches[*]} \\
       $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}"
   fi
 
