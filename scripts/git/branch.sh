@@ -18,31 +18,58 @@
 
 fit::branch::fzf() {
   local mode
-  mode="branch"
+  mode="nothing"
   [[ $1 == "--switch" ]] && mode="switch" && shift
   [[ $1 == "--merge" ]] && mode="merge" && shift
   [[ $1 == "--rebase" ]] && mode="rebase" && shift
 
+  # TODO: オプションの選別
+  local -a options merged no_merged
+  for x in "$@"; do
+    if [[ ${x} == -v || ${x} == "-a" || ${x} == "--all" || ${x} == "-r" || ${x} == "--remotes" ]]; then
+      : # 無視
+
+    elif [[ ${x} == --merged ]]; then
+      merged="--merged" # branchesは特別扱い
+
+    elif [[ ${x} == --no-merged ]]; then
+      no_merged="--no-merged" # remotesは特別扱い
+
+    elif [[ ${x} =~ -.* ]]; then
+      # options
+      options=("${options[*]}" "${x}")
+    fi
+  done
+
   # 引数がある場合は git branch を実行して終了
-  [[ $# -ne 0 ]] && git branch "$@" && return
+  [[ ${#options[*]} -gt 0 ]] && git branch "$@" && return
 
   local header
-  header="* KeyBindings                           * Change Options
-| ENTER   git ${mode} [branch]         | Ctrl+S ❯ fit switch
-| Ctrl+N  git branch -m                | Ctrl+R ❯ fit merge
-| Ctrl+D  fit branch -D (force)        | Ctrl+B ❯ fit rebase
-| Ctrl+L  fit log (multiselect)
+  header="* KeyBindings                          * Change Options
+| ENTER   git ${mode} [branch]          | Ctrl+A ❯ fit branch (all)
+| Ctrl+N  git branch -m                | Ctrl+G ❯ fit branch --no-merged
+| Ctrl+D  fit branch -D (force)        | Ctrl+E ❯ fit branch --no-merge
+| Ctrl+L  fit log (multiselect)        | Ctrl+S ❯ fit switch
+                                       | Ctrl+R ❯ fit merge
+                                       | Ctrl+B ❯ fit rebase
 
 "
 
   # コマンドを生成
   local git_branch fit_fzf
-  git_branch="fit branch::branch-list"
+  git_branch="fit branch::branch-list ${merged} ${no_merged}"
   fit_fzf="fit::fzf \\
         --header \"$header\" \\
         --preview \"fit branch::preview {1}\" \\
         --bind \"ctrl-n:execute(fit branch::actions::call-git-branch-rename {1})+reload(eval $git_branch)\" \\
         --bind \"ctrl-d:execute(fit branch::actions::call-git-branch-delete {1})+reload(eval $git_branch)\" \\
+        --bind \"ctrl-l:execute(fit log {1})\" \\
+        --bind \"ctrl-a:abort+execute(fit branch)\" \\
+        --bind \"ctrl-g:abort+execute(fit branch --merged)\" \\
+        --bind \"ctrl-e:abort+execute(fit branch --no-merged)\" \\
+        --bind \"ctrl-s:abort+execute(fit branch --switch)\" \\
+        --bind \"ctrl-r:abort+execute(fit branch --merge)\" \\
+        --bind \"ctrl-b:abort+execute(fit branch --rebase)\" \\
   "
 
   local branch
@@ -66,8 +93,8 @@ fit::branch::fzf() {
 
 fit::branch::branch-list() {
   local locals remotes
-  locals=$(fit git branch -vv | sed -e 's/\(^\* \|^  \)//g')
-  remotes=$(fit git branch -vv -r | sed -e 's/\(^\* \|^  \)//g')
+  locals=$(eval "fit git branch -vv $1 $2" | sed -e 's/\(^\* \|^  \)//g')
+  remotes=$(eval "fit git branch -vv -r $1 $2" | sed -e 's/\(^\* \|^  \)//g')
 
   if [[ -n $locals ]]; then
     echo "${S_UNDERLINE}Local branches:${NORMAL}"
@@ -106,18 +133,30 @@ fit::branch::actions::call-git-branch-rename() {
     return
   fi
 
-  if fit::utils::is-remote-branch "$branch"; then
+  if fit::utils::is-remote-branch "${branch}"; then
     # リモートはちょっと面倒
     local remote
     remote=$(git remote | head -1)
     local current_branch
     current_branch=$(git branch --show-current)
 
-    git stash &&
-      git switch -c "${new_branch}" -t "${branch}" &&
-      git push -u "${remote}" "${new_branch}"&&
-      git switch "${current_branch}" &&
-      git stash pop stash@{0}
+    local need_stash
+    need_stash=$(git status --short)
+
+    [[ -n $need_stash ]] && git stash               # スタッシュに隠す
+    git switch -c "${new_branch}" -t "${branch}" && # 別名でチェックアウトする
+      git push -u "${remote}" "${new_branch}" &&    # 別名でプッシュする
+      git switch "${current_branch}"                # 元のブランチに帰ってくる
+    [[ -n $need_stash ]] && git stash pop stash@{0} # 隠したスタッシュを戻して元通り
+
+    # 元のリモートブランチは削除しますか？
+    if ! fit::utils::confirm-message "${RED}Delete${NORMAL} old remote branch ${branch}?"; then
+      return
+    fi
+
+    branch=$(echo "${branch}" | sed -e "s/^${remote}\///g")
+    git push "${remote}" --delete "${branch}"
+
   else
     git branch -m "${branch}" "${new_branch}"
   fi
