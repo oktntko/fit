@@ -108,7 +108,7 @@ fit::utils::random() {
 # */
 fit::utils::confirm-message() {
   local yn
-  read -p "$@" -r -n 1 -s yn </dev/tty
+  read -p "$* [y/N] ❯ " -r -n 1 -s yn </dev/tty
   echo >/dev/tty
   [[ $yn =~ y|Y ]] && return 0
   [[ ! $yn =~ y|Y ]] && return 1
@@ -116,9 +116,19 @@ fit::utils::confirm-message() {
 
 # /*
 # エラー通知メッセージ
-# @param string branch.
+# @param string message.
 # */
 fit::utils::error-message() {
   read -p "$* [Press any key] ❯ " -r -n 1 -s </dev/tty
   echo >/dev/tty
+}
+
+# /*
+# 入力用メッセージ
+# @param 特殊. 引数に戻り値を代入する.
+# */
+fit::utils::input-message() {
+  local input
+  read -p "${*:2} ❯ " -r input </dev/tty
+  eval $1="${input}"
 }

@@ -94,28 +94,32 @@ fit::branch::actions::call-git-branch-rename() {
   local branch
   branch="$1"
 
-  if ! fit::utils::is-valid-branch "$branch" || fit::utils::is-remote-branch "$branch"; then
-    # 不正なブランチ名 or リモートブランチの場合
-    # 思いつく方法が面倒なのでエラーにする
-    read -p "${RED}Please select local branch.${NORMAL} [Press any key] ${GREEN}❯${NORMAL} " -r -n 1 -s </dev/tty
-    echo >/dev/tty
+  if ! fit::utils::is-valid-branch "$branch"; then
+    # 不正なブランチ名の場合
+    fit::utils::error-message "${RED}Please select branch name.${NORMAL}"
     return
-
   fi
 
-  # ローカルブランチの場合
-  echo "${YELLOW}Please input new branch name.${NORMAL}" >/dev/tty
-  read -p "git branch -m ${branch} ${GREEN}❯${NORMAL} " -r input </dev/tty
-  echo >/dev/tty
-
-  if git check-ref-format --branch "${input}" >/dev/null 2>&1; then
-    git branch -m "${branch}" "${input}"
+  fit::utils::input-message new_branch "Please input new branch name."
+  if ! git check-ref-format --branch "${new_branch}" >/dev/null 2>&1; then
+    fit::utils::error-message "${RED}'${new_branch}' is not is not a valid branch name${NORMAL}"
     return
+  fi
 
+  if fit::utils::is-remote-branch "$branch"; then
+    # リモートはちょっと面倒
+    local remote
+    remote=$(git remote | head -1)
+    local current_branch
+    current_branch=$(git branch --show-current)
+
+    git stash &&
+      git switch -c "${new_branch}" -t "${branch}" &&
+      git push -u "${remote}" "${new_branch}"&&
+      git switch "${current_branch}" &&
+      git stash pop stash@{0}
   else
-    echo "${RED}'${input}' is not is not a valid branch name${NORMAL}" >/dev/tty
-    return
-
+    git branch -m "${branch}" "${new_branch}"
   fi
 }
 
@@ -130,7 +134,7 @@ fit::branch::actions::call-git-branch-delete() {
   fi
 
   # 削除なので確認しておく
-  if ! fit::utils::confirm-message "${RED}Delete${NORMAL} '${branch}' branch? [y/N] ${GREEN}❯${NORMAL} "; then
+  if ! fit::utils::confirm-message "${RED}Delete${NORMAL} '${branch}' branch?"; then
     return
   fi
 
