@@ -19,9 +19,9 @@
 fit::branch::fzf() {
   local mode
   mode="nothing"
-  [[ $1 == "--switch" ]] && mode="switch" && shift
-  [[ $1 == "--merge" ]] && mode="merge" && shift
-  [[ $1 == "--rebase" ]] && mode="rebase" && shift
+  [[ $1 == "--switch" ]] && mode="switch " && shift
+  [[ $1 == "--merge" ]] && mode="merge  " && shift
+  [[ $1 == "--rebase" ]] && mode="rebase " && shift
 
   # TODO: オプションの選別
   local -a options merged no_merged
@@ -79,13 +79,13 @@ fit::branch::fzf() {
     branch=$(echo "$branch" | awk '{ print $1 }')
     ! fit::utils::is-valid-branch "$branch" && echo "Please select branch name." && return
 
-    if [[ $mode == "switch" ]]; then
+    if [[ $mode == "switch " ]]; then
       fit::branch::actions::call-git-switch "$branch"
 
-    elif [[ $mode == "merge" ]]; then
+    elif [[ $mode == "merge  " ]]; then
       fit::branch::actions::call-git-merge "$branch"
 
-    elif [[ $mode == "rebase" ]]; then
+    elif [[ $mode == "rebase " ]]; then
       fit::branch::actions::call-git-rebase "$branch"
     fi
   fi
