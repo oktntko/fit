@@ -76,7 +76,7 @@ fit::log::fzf() {
     --header \"$header\" \\
     --multi \\
     --preview \"fit log::preview {}\" \\
-    --bind \"enter:execute(fit log::actions::call-git-show {} | eval ${FIT_PAGER_SHOW} | less -R)\" \\
+    --bind \"enter:execute(fit log::actions::call-git-show {} | eval ${FIT_PAGER_SHOW} | less -R > /dev/tty)\" \\
     --bind \"ctrl-d:execute(fit log::actions::call-fit-diff {+})\" \\
     --bind \"ctrl-f:execute(fit log::actions::call-git-difftool {+})\" \\
     --bind \"ctrl-b:abort+execute(fit log --branches)\" \\
