@@ -13,6 +13,9 @@
 # add/stage
 # restore/unstage
 # commit
+
+# git status [<options>…​] [--] [<pathspec>…​]
+
 fit::status() {
   local mode
   mode="status"
@@ -22,13 +25,13 @@ fit::status() {
 
   # header のだし分け
   local header
-  header="🔹KeyBindings🔹
-  Ctrl+S : Change status.
-  Ctrl+P : Patch file
-  Ctrl+A : Change status ALL files.
-  Ctrl+R : Restore worktree change.
-  Ctrl+E : Edit file.
-  Ctrl+D : Remove file from filesystem.
+  header="${GRAY}*${NORMAL} KeyBindings                           ${GRAY}*${NORMAL} Change Options
+| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}${mode}${NORMAL} [branch]         | Ctrl+${WHITE}A${NORMAL} ❯ ${GREEN}fit${NORMAL} branch (all)
+| Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} branch -m                | Ctrl+${WHITE}G${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merged
+| Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch -D (force)        | Ctrl+${WHITE}E${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merge
+| Ctrl+${WHITE}L${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} log (multiselect)        | Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} switch
+                                        | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} merge
+                                        | Ctrl+${WHITE}B${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} rebase
 
 "
 

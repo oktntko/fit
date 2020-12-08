@@ -18,12 +18,11 @@ export FIT_PREVIEW_HIDDEN="${FIT_PREVIEW_HIDDEN:-nohidden}"
 
 
 # show file
-export FIT_PREVIEW_FILE="bat --color=always"
+export FIT_PREVIEW_FILE="${FIT_PREVIEW_FILE:-bat --color=always}"
 
 # show directory
-export FIT_PREVIEW_DIRECTORY="exa -l --color=always"
-
-export FIT_CORE_BRANCH_MODE="" # local(default) | remotes | all
+export FIT_PREVIEW_DIRECTORY="${FIT_PREVIEW_DIRECTORY:-"exa -l -T --color=always"}"
+export FIT_TREE_VIEWER="${FIT_TREE_VIEWER:-"ls -1 --color=always"}"
 
 export FIT_EDITOR="${FIT_EDITOR:-$(git config --get core.editor || echo "$EDITOR" || echo 'vi')}"
 

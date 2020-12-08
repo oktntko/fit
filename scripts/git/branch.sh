@@ -18,7 +18,7 @@
 
 fit::branch::fzf() {
   local mode
-  mode="nothing"
+  mode="branch "
   [[ $1 == "--switch" ]] && mode="switch " && shift
   [[ $1 == "--merge" ]] && mode="merge  " && shift
   [[ $1 == "--rebase" ]] && mode="rebase " && shift
@@ -87,6 +87,10 @@ fit::branch::fzf() {
 
     elif [[ $mode == "rebase " ]]; then
       fit::branch::actions::call-git-rebase "$branch"
+
+    else
+      fit::branch::branch-list ${merged} ${no_merged}
+
     fi
   fi
 }

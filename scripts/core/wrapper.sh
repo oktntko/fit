@@ -102,6 +102,7 @@ fit::fzf() {
     --bind "alt-r:toggle-preview" \
     --bind "alt-e:toggle-preview-wrap" \
     --bind "alt-p:execute(echo {} >/dev/tty && sleep 0.5s)" \
+    --bind "ctrl-w:abort" \
     --bind "shift-up:preview-up" \
     --bind "shift-down:preview-down" \
     --bind "shift-left:preview-page-up" \
