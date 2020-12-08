@@ -5,8 +5,6 @@ fit::tree() {
   parent="$1"
   [[ -z ${parent} ]] && parent="."
 
-  echo "${parent}" >log.log
-
   eval "${FIT_TREE_VIEWER} ${parent}" |
     fit::fzf \
       --header "${parent}/" \
