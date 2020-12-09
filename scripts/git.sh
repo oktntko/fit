@@ -79,3 +79,27 @@ fit::log() {
 # --------------------------------------------------------------------------------
 # reflog group
 # --------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------
+# push group
+# --------------------------------------------------------------------------------
+fit::push() {
+  # 引数がある場合は git rebase を実行して終了
+  [[ $# -ne 0 ]] && git push "$@" && return
+
+  if ! git push --dry-run >/dev/null 2>&1; then
+    git push --dry-run
+    return
+  fi
+
+  local remotes
+  remotes=$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})
+
+  # 確認しておきますか？
+  if fit::utils::confirm-message "${YELLOW}need check diff HEAD..${remotes}${NORMAL}?"; then
+    fit::diff "HEAD..${remotes}"
+    [[ $? == 0 ]] && return
+  fi
+
+  git push
+}
