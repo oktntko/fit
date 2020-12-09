@@ -26,12 +26,11 @@ fit::status() {
   # header のだし分け
   local header
   header="${GRAY}*${NORMAL} KeyBindings                           ${GRAY}*${NORMAL} Change Options
-| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}${mode}${NORMAL}                  | Ctrl+${WHITE}A${NORMAL} ❯ ${GREEN}fit${NORMAL} branch (all)
-| Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} stage/unstage (multiselect)  | Ctrl+${WHITE}G${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merged
-| Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} add -A                   | Ctrl+${WHITE}E${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merge
-| Ctrl+${WHITE}L${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} log (multiselect)        | Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} switch
-                                        | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} merge
-                                        | Ctrl+${WHITE}B${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} rebase
+| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}${mode}${NORMAL}
+| Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} stage/unstage (multiselect)  | Ctrl+${WHITE}E${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}EDIT${NORMAL} [file]
+| Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} add -A                   | Ctrl+${WHITE}D${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}rm${NORMAL} [file]
+| Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} restore (multiselect)
+| Ctrl+${WHITE}P${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} stage/unstage --patch
 
 "
 
@@ -52,8 +51,8 @@ fit::status() {
         --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
         --bind "ctrl-a:execute-silent(fit add-all)+$reload" \
         --bind "ctrl-r:execute-silent(fit restore::worktree {+2})+$reload" \
-        --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
         --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
+        --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
         --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
   )
   if [[ $? == 0 ]]; then
@@ -134,7 +133,7 @@ fit::status::preview() {
 # */
 fit::core::status() {
   local statuses
-  statuses=$(git -c color.ui=always -c status.relativePaths=true status -su)
+  statuses=$(fit git status -su)
 
   local stating unstaging untracked
   stating=$(echo "${statuses}" | fit core::status::list-files --staging-only)
@@ -205,6 +204,8 @@ fit::add-all() {
 fit::restore::worktree() {
   # TODO: ファイルがstaging 状態だと利かない
   for file in "$@"; do
-    git restore --worktree "$file"
+    # git restore --worktree -> worktree をrestoreする(HEADに合わせる)
+    # git restore --staged   -> staging  をrestoreする(HEADに合わせる)
+    git restore --source=HEAD --staged --worktree "$file"
   done
 }

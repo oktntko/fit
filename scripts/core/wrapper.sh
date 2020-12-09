@@ -116,5 +116,6 @@ fit::git() {
   git \
     -c color.ui=always \
     -c log.decorate=true \
+    -c status.relativePaths=true \
     "$@"
 }
