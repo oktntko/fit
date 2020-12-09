@@ -50,7 +50,7 @@ fit::tree::actions::delete() {
 
   # TODO: 削除できない
   if [[ -d "${parent}/${selected}" ]]; then
-    rm -rf "${parent}/${selected}"
+    rm -rf "${parent:?}/${selected}"
   else
     rm "${parent}/${selected}"
   fi

@@ -18,17 +18,17 @@
 
 fit::status() {
   local mode
-  mode="status"
-  [[ $1 == "--add" || $1 == "-a" ]] && mode="add" && shift
+  mode="status "
+  [[ $1 == "--add" || $1 == "-a" ]] && mode="add    " && shift
   [[ $1 == "--restore" || $1 == "-r" ]] && mode="restore" && shift
-  [[ $1 == "--commit" || $1 == "-c" ]] && mode="commit" && shift
+  [[ $1 == "--commit" || $1 == "-c" ]] && mode="commit " && shift
 
   # header のだし分け
   local header
   header="${GRAY}*${NORMAL} KeyBindings                           ${GRAY}*${NORMAL} Change Options
-| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}${mode}${NORMAL} [branch]         | Ctrl+${WHITE}A${NORMAL} ❯ ${GREEN}fit${NORMAL} branch (all)
-| Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} branch -m                | Ctrl+${WHITE}G${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merged
-| Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch -D (force)        | Ctrl+${WHITE}E${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merge
+| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}${mode}${NORMAL}                  | Ctrl+${WHITE}A${NORMAL} ❯ ${GREEN}fit${NORMAL} branch (all)
+| Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} stage/unstage (multiselect)  | Ctrl+${WHITE}G${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merged
+| Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} add -A                   | Ctrl+${WHITE}E${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} branch --no-merge
 | Ctrl+${WHITE}L${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} log (multiselect)        | Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} switch
                                         | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} merge
                                         | Ctrl+${WHITE}B${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} rebase
@@ -50,25 +50,27 @@ fit::status() {
         --multi \
         --preview "fit status::preview {1} {2}" \
         --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
-        --bind "ctrl-a:execute-silent(fit add-a)+$reload" \
+        --bind "ctrl-a:execute-silent(fit add-all)+$reload" \
         --bind "ctrl-r:execute-silent(fit restore::worktree {+2})+$reload" \
         --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
         --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
         --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
   )
   if [[ $? == 0 ]]; then
-    if [[ $mode == "add" ]]; then
+    if [[ $mode == "add    " ]]; then
       [[ -n "$files" ]] && echo "$files" | awk '{ print $2 }' | fit::utils::valid-files | xargs git add
 
     elif [[ $mode == "restore" ]]; then
       [[ -n "$files" ]] && echo "$files" | awk '{ print $2 }' | fit::utils::valid-files | xargs git restore --staged
 
-    elif [[ $mode == "commit" ]]; then
+    elif [[ $mode == "commit " ]]; then
       git commit "$@" && return
+
+    else
+      git status && return
+
     fi
   fi
-
-  git status && return
 }
 
 # /*
@@ -192,11 +194,7 @@ fit::core::status::list-files() {
   eval "${grfile}"
 }
 
-fit::add-u() {
-  git add -u
-}
-
-fit::add-a() {
+fit::add-all() {
   git add -A
 }
 
