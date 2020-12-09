@@ -96,8 +96,8 @@ fit::push() {
   remotes=$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})
 
   # 確認しておきますか？
-  if fit::utils::confirm-message "${YELLOW}need check diff HEAD..${remotes}${NORMAL}?"; then
-    fit::diff "HEAD..${remotes}"
+  if fit::utils::confirm-message "${YELLOW}need check diff ${remotes}..HEAD?${NORMAL}"; then
+    fit::diff "${remotes}..HEAD"
     [[ $? == 0 ]] && return
   fi
 
