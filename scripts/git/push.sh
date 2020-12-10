@@ -8,13 +8,14 @@
 # 	   [--no-verify] [<repository> [<refspec>…​]]
 
 fit::push::fzf() {
-  local remotes
+  local remotes head
+  head=$(git rev-parse HEAD)
   remotes=$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream})
 
   # 確認しておきますか？
-  if fit::utils::confirm-message "${YELLOW}need check diff ${remotes}..HEAD?${NORMAL}"; then
-    fit::diff "${remotes}..HEAD"
-    if ! fit::utils::confirm-message "${YELLOW}continue?"; then
+  if fit::utils::confirm-message "${YELLOW}Check push diff?${NORMAL}"; then
+    fit::diff "${remotes}..${head}"
+    if ! fit::utils::confirm-message "${YELLOW}Continue?${NORMAL}"; then
       return
     fi
   fi

@@ -89,3 +89,10 @@ fit::push() {
 
   fit::push::fzf
 }
+
+fit::pull() {
+  # 引数がある場合は git を実行して終了
+  [[ $# -ne 0 ]] && git pull "$@" && return
+
+  fit::pull::fzf
+}
