@@ -108,10 +108,10 @@ fit::utils::random() {
 # */
 fit::utils::confirm-message() {
   local yn
-  read -p "$* [y/N] ❯ " -r -n 1 -s yn </dev/tty
+  read -p "$* [Y/n] ❯ " -r -n 1 -s yn </dev/tty
   echo >/dev/tty
-  [[ $yn =~ y|Y ]] && return 0
-  [[ ! $yn =~ y|Y ]] && return 1
+  [[ $yn =~ n|N ]] && return 1
+  return 0
 }
 
 # /*

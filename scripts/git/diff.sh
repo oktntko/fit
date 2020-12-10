@@ -7,7 +7,7 @@
 # git diff [<options>] <blob> <blob>
 # git diff [<options>] --no-index [--] <path> <path>
 
-fit::core::diff() {
+fit::diff::fzf() {
   local -A commits
   commits=(
     ["old"]=""
@@ -57,9 +57,8 @@ fit::core::diff() {
 
   local header
   header="${GRAY}*${NORMAL} ${WHITE}KeyBindings${NORMAL}                           ${GRAY}*${NORMAL} ${WHITE}Change Options${NORMAL}
-| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} diff                     | Ctrl+${WHITE}H${NORMAL} ❯ ${GREEN}fit${NORMAL} diff --cached
+| ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} ${YELLOW}diff${NORMAL}                     | Ctrl+${WHITE}H${NORMAL} ❯ ${GREEN}fit${NORMAL} diff --cached
 | Ctrl+${WHITE}F${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}git${NORMAL} difftool (multiselect)   |
-| Ctrl+${WHITE}S${NORMAL} ${WHITE}❯${NORMAL} ${GREEN}fit${NORMAL} status                   |
 
 "
 
@@ -69,7 +68,6 @@ fit::core::diff() {
       --header "${header}" \
       --preview "eval ${git_diff_preview} {1} | eval ${FIT_PAGER_DIFF}" \
       --bind "enter:execute(eval ${git_diff_preview} {1} | eval ${FIT_PAGER_DIFF} | less -R > /dev/tty)" \
-      --bind "ctrl-s:execute(fit status)+reload(eval ${git_diff} | sed -e '\$d')" \
       --bind "ctrl-f:execute(fit ${git_difftool} {1})" \
       --bind "ctrl-h:abort+execute(fit diff --cached)"
 }
