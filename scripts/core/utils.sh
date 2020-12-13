@@ -132,3 +132,12 @@ fit::utils::input-message() {
   read -p "${*:2} ❯ " -r input </dev/tty
   eval $1="${input}"
 }
+
+# /*
+# 引数のファイルのindexの状態を判定する
+# @param string file.
+# @return boolean true: is staging/ false: not staging.
+# */
+fit::utils::status-is-staging() {
+  git diff --name-only --staged | grep -qE ^"$1"$
+}

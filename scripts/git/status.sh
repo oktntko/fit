@@ -16,7 +16,7 @@
 
 # git status [<options>…​] [--] [<pathspec>…​]
 
-fit::status() {
+fit::status::fzf() {
   local mode
   mode="status "
   [[ $1 == "--add" || $1 == "-a" ]] && mode="add    " && shift
@@ -40,7 +40,7 @@ fit::status() {
   # TODO: [R]renameに対応できていないと思われる
   # --preview や --execute で実行するコマンドはPATHが通っていないと実行できない
   # 例えば、nvm => NG だけど、nvm を使ってインストールした node => OK.
-  statuses="fit core::status"
+  statuses="fit status-all"
   reload="reload(eval $statuses)"
   files=$(
     eval "$statuses" |
@@ -48,10 +48,10 @@ fit::status() {
         --header "$header" \
         --multi \
         --preview "fit status::preview {1} {2}" \
-        --bind "ctrl-s:execute-silent(fit status::change {+2})+$reload" \
-        --bind "ctrl-a:execute-silent(fit add-all)+$reload" \
-        --bind "ctrl-r:execute-silent(fit restore::worktree {+2})+$reload" \
-        --bind "ctrl-p:execute(fit status::patch {2})+$reload" \
+        --bind "ctrl-s:execute-silent(fit status::actions::change-status {+2})+$reload" \
+        --bind "ctrl-a:execute-silent(fit status::actions::call-git-add-all)+$reload" \
+        --bind "ctrl-r:execute-silent(fit status::actions::call-git-restore-worktree {+2})+$reload" \
+        --bind "ctrl-p:execute(fit status::actions::patch-status {2})+$reload" \
         --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
         --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
   )
@@ -73,72 +73,19 @@ fit::status() {
 }
 
 # /*
-# 引数のファイルの stage/unstage を切り替える
-# @param string[] files.
-# */
-fit::status::change() {
-  for file in "$@"; do
-    if fit::core::status::is-staging "$file"; then
-      git restore --staged "$file"
-    else
-      git add -- "$file"
-    fi
-  done
-}
-
-# /*
-# git add/restore --patchの実行
-# @param string file.
-# */
-fit::status::patch() {
-  local file
-  file=$1
-
-  ! fit::utils::is-valid-file "$1" && return
-
-  # エディタを開く場合は </dev/tty >/dev/tty がないと
-  # Input is not from a terminal
-  # Output is not to a terminal
-  # が出て動きが止まる
-  if ! fit::core::status::is-staging "$file"; then
-    git add -p "$file" </dev/tty >/dev/tty
-  else
-    git restore -S -p "$file" </dev/tty >/dev/tty
-  fi
-}
-
-fit::status::preview() {
-  local s file
-  s=$1
-  file=$2
-
-  echo "$s" "$file" # TODO: 色付け
-
-  if [[ -f $file && $s != '??' ]]; then # tracked file => git diff.
-    git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
-  elif [[ -f $file && $s == '??' ]]; then # untracked file => show preview.
-    eval "${FIT_PREVIEW_FILE} $file"
-  elif [[ -d $file ]]; then # directory => show tree.
-    eval "${FIT_PREVIEW_DIRECTORY} $file"
-  elif [[ ! -e $file ]]; then # deleted file => git diff.
-    git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
-  fi
-}
-
-# /*
 # 引数のファイルのindexの状態を判定する
 # @option --staging-only
 # @option --unstaging-only
 # @return boolean true: is staging/ false: not staging.
 # */
-fit::core::status() {
+fit::status-all() {
   local statuses
   statuses=$(fit git status -su)
 
   local stating unstaging untracked
-  stating=$(echo "${statuses}" | fit core::status::list-files --staging-only)
-  unstaging=$(echo "${statuses}" | fit core::status::list-files --unstaging-only)
-  untracked=$(echo "${statuses}" | fit core::status::list-files --untracked-only)
+  stating=$(echo "${statuses}" | fit status::list-files --staging-only)
+  unstaging=$(echo "${statuses}" | fit status::list-files --unstaging-only)
+  untracked=$(echo "${statuses}" | fit status::list-files --untracked-only)
 
   if [[ -n $stating ]]; then
     echo "${GREEN}Changes to be committed:${NORMAL}"
@@ -158,16 +105,7 @@ fit::core::status() {
   fi
 }
 
-# /*
-# 引数のファイルのindexの状態を判定する
-# @param string file.
-# @return boolean true: is staging/ false: not staging.
-# */
-fit::core::status::is-staging() {
-  git diff --name-only --staged | grep -qE ^"$1"$
-}
-
-fit::core::status::list-files() {
+fit::status::list-files() {
   local filter
   if [[ $1 == --staging-only ]]; then
     # git diff --name-only --staged => staged な変更を表示する
@@ -193,7 +131,60 @@ fit::core::status::list-files() {
   eval "${grfile}"
 }
 
-fit::add-all() {
+fit::status::preview() {
+  local s file
+  s=$1
+  file=$2
+
+  echo "$s" "$file" # TODO: 色付け
+
+  if [[ -f $file && $s != '??' ]]; then # tracked file => git diff.
+    git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
+  elif [[ -f $file && $s == '??' ]]; then # untracked file => show preview.
+    eval "${FIT_PREVIEW_FILE} $file"
+  elif [[ -d $file ]]; then # directory => show tree.
+    eval "${FIT_PREVIEW_DIRECTORY} $file"
+  elif [[ ! -e $file ]]; then # deleted file => git diff.
+    git diff HEAD -- "$file" | eval "${FIT_PAGER_DIFF}"
+  fi
+}
+
+# /*
+# 引数のファイルの stage/unstage を切り替える
+# @param string[] files.
+# */
+fit::status::actions::change-status() {
+  for file in "$@"; do
+    if fit::utils::status-is-staging "$file"; then
+      git restore --staged "$file"
+    else
+      git add -- "$file"
+    fi
+  done
+}
+
+# /*
+# git add/restore --patchの実行
+# @param string file.
+# */
+fit::status::actions::patch-status() {
+  local file
+  file=$1
+
+  ! fit::utils::is-valid-file "$1" && return
+
+  # エディタを開く場合は </dev/tty >/dev/tty がないと
+  # Input is not from a terminal
+  # Output is not to a terminal
+  # が出て動きが止まる
+  if ! fit::utils::status-is-staging "$file"; then
+    git add -p "$file" </dev/tty >/dev/tty
+  else
+    git restore -S -p "$file" </dev/tty >/dev/tty
+  fi
+}
+
+fit::status::actions::call-git-add-all() {
   git add -A
 }
 
@@ -201,7 +192,7 @@ fit::add-all() {
 # 引数のファイルの変更を取り消す
 # @param string[] files.
 # */
-fit::restore::worktree() {
+fit::status::actions::call-git-restore-worktree() {
   # TODO: ファイルがstaging 状態だと利かない
   for file in "$@"; do
     # git restore --worktree -> worktree をrestoreする(HEADに合わせる)

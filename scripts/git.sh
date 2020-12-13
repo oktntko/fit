@@ -10,15 +10,19 @@ fit::diff() {
 # --------------------------------------------------------------------------------
 # status group
 # --------------------------------------------------------------------------------
+fit::status() {
+  fit::status::fzf --commit "$@"
+}
+
 fit::commit() {
-  fit::status --commit "$@"
+  fit::status::fzf --commit "$@"
 }
 
 fit::add() {
   # 引数がある場合は git を実行して終了
   [[ $# -ne 0 ]] && git add "$@" && return
 
-  fit::status --add
+  fit::status::fzf --add
 }
 
 fit::stage() {
@@ -31,7 +35,7 @@ fit::restore() {
   # 引数がある場合は git を実行して終了
   [[ $# -ne 0 ]] && git restore "$@" && return
 
-  fit::status --restore
+  fit::status::fzf --restore
 }
 
 fit::unstage() {

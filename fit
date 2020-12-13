@@ -57,30 +57,3 @@ fit() {
 }
 
 fit "$@"
-
-# --------------------------------------------------------------------------------
-# tig
-# --------------------------------------------------------------------------------
-# m view-main           Show main view
-# d view-diff           Show diff view
-# l view-log            Show log view
-# t view-tree           Show tree view
-# f view-blob           Show blob view
-# b view-blame          Show blame view
-# r view-refs           Show refs view
-# s view-status         Show status view
-# c view-stage          Show stage view
-# y view-stash          Show stash view
-# g view-grep           Show grep view
-# p view-pager          Show pager view
-# h view-help           Show help view
-
-# --------------------------------------------------------------------------------
-# tortoise git
-# --------------------------------------------------------------------------------
-# log
-# commit
-# diff
-# revert
-# refs
-# branches
