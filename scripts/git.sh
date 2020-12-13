@@ -11,7 +11,7 @@ fit::diff() {
 # status group
 # --------------------------------------------------------------------------------
 fit::status() {
-  fit::status::fzf --commit "$@"
+  fit::status::fzf "$@"
 }
 
 fit::commit() {
