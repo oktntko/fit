@@ -14,7 +14,7 @@ fit::push::fzf() {
 
   # 確認しておきますか？
   if fit::utils::confirm-message "${YELLOW}Check push diff?${NORMAL}"; then
-    fit::diff "${remotes}..${head}"
+    fit::diff "${remotes}" "${head}"
     if ! fit::utils::confirm-message "${YELLOW}Continue?${NORMAL}"; then
       return
     fi

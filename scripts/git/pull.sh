@@ -10,7 +10,11 @@ fit::pull::fzf() {
   git pull
 
   # 確認しておきますか？
-  if fit::utils::confirm-message "${YELLOW}Check pulled diff?"; then
-    fit::diff "${before_head}..${remotes}"
+  if ! git diff "${before_head}" "${remotes}" --exit-code --quiet; then
+    # git diff --exit-code / true: 差分がない / false: 差分がある
+    # の否定系で差分がある時だけ確認メッセージを表示する
+    if fit::utils::confirm-message "${YELLOW}Check pulled diff ?"; then
+      fit::diff "${before_head}" "${remotes}"
+    fi
   fi
 }
