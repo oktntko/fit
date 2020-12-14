@@ -51,9 +51,9 @@ fit::diff::fzf() {
 
   # コマンドを生成
   local git_diff git_diff_preview
-  git_diff=$(echo "git diff --stat --color=always ${cached} ${no_index} ${commits[*]} $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/ \+/ /g')
-  git_diff_preview=$(echo "git diff ${cached} ${no_index} ${commits[*]} --" | sed -e 's/ \+/ /g')
-  git_difftool=$(echo "git difftool ${cached} ${no_index} ${commits[*]} --" | sed -e 's/ \+/ /g')
+  git_diff=$(echo "git diff --stat --color=always ${cached} ${no_index} ${commits["old"]} ${commits["new"]} $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/ \+/ /g')
+  git_diff_preview=$(echo "git diff ${cached} ${no_index} ${commits["old"]} ${commits["new"]} --" | sed -e 's/ \+/ /g')
+  git_difftool=$(echo "git difftool ${cached} ${no_index} ${commits["old"]} ${commits["new"]} --" | sed -e 's/ \+/ /g')
 
   local header
   header="${GRAY}*${NORMAL} ${WHITE}KeyBindings${NORMAL}                           ${GRAY}*${NORMAL} ${WHITE}Change Options${NORMAL}
