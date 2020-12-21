@@ -11,6 +11,7 @@ fit::stash::fzf() {
   local fit_fzf
   fit_fzf="fit::fzf \\
         --header \"$header\" \\
+        --preview \"fit stash::preview {1}\" \\
         "
 
   fit::stash::menu | eval "${fit_fzf}"
@@ -18,13 +19,42 @@ fit::stash::fzf() {
 
 fit::stash::menu() {
   if fit::utils::has-changed-files; then
-    echo "has changed"
+    echo "${GREEN}Save changed files${NORMAL}"
+    echo "save"
   fi
 
-  echo "save"
-  echo "list"
-  echo "apply"
-  echo "pop"
-  echo "drop"
-  echo "clear"
+  local stashes
+  stashes=$(git stash list)
+  if [[ -n $stashes ]]; then
+    echo
+    echo "${YELLOW}List the stash entries${NORMAL}"
+    echo "$stashes"
+  fi
+
+  if [[ -n $(fit utils::has-changed-files) && -n $stashes ]]; then
+    echo "${RED}You can not do anything${NORMAL}"
+  fi
 }
+
+fit::stash::preview() {
+  local stash
+  stash="$1"
+
+  if [[ $stash == "save" ]]; then
+    fit status-all
+
+  elif [[ $stash =~ :$ ]]; then
+    stash="${stash%:}"
+
+    git stash show -p "$stash" | eval "${FIT_PAGER_DIFF}"
+  fi
+}
+
+# Git stash save
+# Git stash list
+# Git stash apply
+# Git stash pop
+# Git stash show
+# Git stash branch <name>
+# Git stash clear
+# Git stash drop
