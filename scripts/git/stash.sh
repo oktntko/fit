@@ -17,6 +17,10 @@ fit::stash::fzf() {
 }
 
 fit::stash::menu() {
+  if fit::utils::has-changed-files; then
+    echo "has changed"
+  fi
+
   echo "save"
   echo "list"
   echo "apply"

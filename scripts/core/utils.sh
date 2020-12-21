@@ -61,6 +61,10 @@ fit::utils::is-valid-branch() {
   git branch -a --format="%(refname:short)" | grep -qE "^$1$"
 }
 
+fit::utils::has-changed-files() {
+  [[ -n $(fit git status -su) ]]
+}
+
 # --------------------------------------------------------------------------------
 # string
 # --------------------------------------------------------------------------------
