@@ -131,9 +131,19 @@ fit::utils::error-message() {
 # 入力用メッセージ
 # @param 特殊. 引数に戻り値を代入する.
 # */
-fit::utils::input-message() {
+fit::utils::input-text() {
   local input
   read -p "${*:2} ❯ " -r input </dev/tty
+  eval $1="${input}"
+}
+
+# /*
+# 入力用メッセージ
+# @param 特殊. 引数に戻り値を代入する.
+# */
+fit::utils::input-char() {
+  local input
+  read -p "${*:2} ❯ " -r -n 1 -s input </dev/tty
   eval $1="${input}"
 }
 
