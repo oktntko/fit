@@ -131,6 +131,7 @@ fit::branch::actions::call-git-branch-rename() {
     return
   fi
 
+  local new_branch
   fit::utils::input-text new_branch "Please input new branch name."
   if ! git check-ref-format --branch "${new_branch}" >/dev/null 2>&1; then
     fit::utils::error-message "${RED}'${new_branch}' is not is not a valid branch name${NORMAL}"

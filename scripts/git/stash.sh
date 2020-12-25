@@ -14,7 +14,7 @@ fit::stash::fzf() {
   fit_fzf="fit::fzf \\
         --header \"$header\" \\
         --preview \"fit stash::preview {1}\" \\
-        --bind \"enter:execute(fit stash::actions::enter {1})\" \\
+        --bind \"enter:execute(fit stash::actions::enter {1})+reload(fit stash::menu)\" \\
         "
 
   fit::stash::menu | eval "${fit_fzf}"
@@ -70,7 +70,7 @@ fit::stash::actions::enter() {
 
 fit::stash::actions::call-git-stash-save() {
   local opt
-  fit::utils::input-char opt "Input stash option/ u(--include-untracked) k(--keep-index)]"
+  fit::utils::input-char opt "Input stash option ${GREEN}u${NORMAL}(--include-untracked) ${GREEN}k${NORMAL}(--keep-index)]"
   if [[ $opt =~ u|U ]]; then
     opt="--include-untracked"
   elif [[ $opt =~ k|K ]]; then
@@ -80,7 +80,7 @@ fit::stash::actions::call-git-stash-save() {
   fi
 
   local message
-  fit::utils::input-text message "Input stash message"
+  fit::utils::input-text message "Input stash ${GREEN}message${NORMAL}"
   message=$(fit::utils::quote-single-param "${message}")
 
   eval "git stash save ${opt} ${message}"
