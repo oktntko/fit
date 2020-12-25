@@ -134,6 +134,7 @@ fit::utils::error-message() {
 fit::utils::input-text() {
   local input
   read -p "${*:2} ❯ " -r input </dev/tty
+  echo >/dev/tty
   eval $1="${input}"
 }
 
@@ -144,6 +145,7 @@ fit::utils::input-text() {
 fit::utils::input-char() {
   local input
   read -p "${*:2} ❯ " -r -n 1 -s input </dev/tty
+  echo >/dev/tty
   eval $1="${input}"
 }
 
