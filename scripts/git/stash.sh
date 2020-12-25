@@ -69,17 +69,21 @@ fit::stash::actions::enter() {
 }
 
 fit::stash::actions::call-git-stash-save() {
-  fit::utils::input-char menu "p:(select file) u:(include-untracked) k(:keep-index)]"
-  # untrackedファイルもですか？
-  # --include-untracked
+  local opt
+  fit::utils::input-char opt "Input stash option/ u(--include-untracked) k(--keep-index)]"
+  if [[ $opt =~ u|U ]]; then
+    opt="--include-untracked"
+  elif [[ $opt =~ k|K ]]; then
+    opt="--keep-index"
+  else
+    opt=""
+  fi
 
-  # --keep-index addされているファイルはstashしない
-  # --no-keep-index addされていてもstashする
+  local message
+  fit::utils::input-text message "Input stash message"
+  message=$(fit::utils::quote-single-param "${message}")
 
-  # --patch git add とかと同じ
-
-  # <pathspec> git stash push ならファイルを選択できる
-  :
+  eval "git stash save ${opt} ${message}"
 }
 
 fit::stash::actions::call-git-stash-show() {
