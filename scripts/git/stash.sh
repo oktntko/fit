@@ -81,7 +81,7 @@ fit::stash::actions::call-git-stash-save() {
 
   local message
   fit::utils::input-text message "Input stash ${GREEN}message${NORMAL}"
-  message="\"{$message}\""
+  message="\"${message[*]}\""
 
   eval "git stash save ${opt} ${message}"
 }
