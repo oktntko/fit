@@ -135,7 +135,7 @@ fit::utils::input-text() {
   local input
   read -p "${*:2} ❯ " -r input </dev/tty
   echo >/dev/tty
-  eval $1="${input}"
+  eval $1="\"${input}\""
 }
 
 # /*
