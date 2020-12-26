@@ -8,7 +8,6 @@ fit::stash::fzf() {
 | Ctrl+${WHITE}P${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}pop${NORMAL}
 | Ctrl+${WHITE}D${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}drop${NORMAL}
 | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}clear${NORMAL}
-| Ctrl+${WHITE}B${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}branch${NORMAL}
 
 "
   local fit_fzf
@@ -16,7 +15,7 @@ fit::stash::fzf() {
         --header \"$header\" \\
         --preview \"fit stash::preview {1}\" \\
         --bind \"enter:execute(fit stash::actions::enter {1})+reload(fit stash::menu)\" \\
-        --bind \"ctrl-a:execute-silent(fit stash::actions::call-git-stash-apply {1})+reload(fit stash::menu)\" \\
+        --bind \"ctrl-a:execute(fit stash::actions::call-git-stash-apply {1})+reload(fit stash::menu)\" \\
         --bind \"ctrl-p:execute-silent(fit stash::actions::call-git-stash-pop {1})+reload(fit stash::menu)\" \\
         --bind \"ctrl-d:execute-silent(fit stash::actions::call-git-stash-drop {1})+reload(fit stash::menu)\" \\
         --bind \"ctrl-r:execute-silent(fit stash::actions::call-git-stash-clear)+reload(fit stash::menu)\" \\
