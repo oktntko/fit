@@ -6,6 +6,7 @@ fit::stash::fzf() {
 | ${WHITE}${S_UNDERLINE}ENTER${NORMAL}  ${WHITE}❯${NORMAL} git stash ${GREEN}show${NORMAL}
 | Ctrl+${WHITE}A${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}apply${NORMAL}
 | Ctrl+${WHITE}P${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}pop${NORMAL}
+| Ctrl+${WHITE}D${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}drop${NORMAL}
 | Ctrl+${WHITE}R${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}clear${NORMAL}
 | Ctrl+${WHITE}B${NORMAL} ${WHITE}❯${NORMAL} git stash ${GREEN}branch${NORMAL}
 
@@ -15,6 +16,10 @@ fit::stash::fzf() {
         --header \"$header\" \\
         --preview \"fit stash::preview {1}\" \\
         --bind \"enter:execute(fit stash::actions::enter {1})+reload(fit stash::menu)\" \\
+        --bind \"ctrl-a:execute-silent(fit stash::actions::call-git-stash-apply {1})+reload(fit stash::menu)\" \\
+        --bind \"ctrl-p:execute-silent(fit stash::actions::call-git-stash-pop {1})+reload(fit stash::menu)\" \\
+        --bind \"ctrl-d:execute-silent(fit stash::actions::call-git-stash-drop {1})+reload(fit stash::menu)\" \\
+        --bind \"ctrl-r:execute-silent(fit stash::actions::call-git-stash-clear)+reload(fit stash::menu)\" \\
         "
 
   fit::stash::menu | eval "${fit_fzf}"
@@ -90,4 +95,41 @@ fit::stash::actions::call-git-stash-show() {
   stash="$1"
 
   git stash show -p "$stash" | eval "${FIT_PAGER_DIFF}" | less -R >/dev/tty
+}
+
+fit::stash::actions::call-git-stash-apply() {
+  local stash
+  stash="$1"
+
+  if [[ $stash =~ :$ ]]; then
+    stash="${stash%:}"
+
+    git stash apply "$stash"
+  fi
+}
+
+fit::stash::actions::call-git-stash-pop() {
+  local stash
+  stash="$1"
+
+  if [[ $stash =~ :$ ]]; then
+    stash="${stash%:}"
+
+    git stash pop "$stash"
+  fi
+}
+
+fit::stash::actions::call-git-stash-drop() {
+  local stash
+  stash="$1"
+
+  if [[ $stash =~ :$ ]]; then
+    stash="${stash%:}"
+
+    git stash drop "$stash"
+  fi
+}
+
+fit::stash::actions::call-git-stash-clear() {
+  git stash clear
 }
