@@ -9,6 +9,8 @@ The concept is to be able to use git commands as they are in `fit`.
 
 **_DEMO:_**
 
+<script id="asciicast-gckUiq3HaLLM2dwmwkAuDLBdY" src="https://asciinema.org/a/gckUiq3HaLLM2dwmwkAuDLBdY.js" async></script>
+
 [![asciicast](https://asciinema.org/a/gckUiq3HaLLM2dwmwkAuDLBdY.svg)](https://asciinema.org/a/gckUiq3HaLLM2dwmwkAuDLBdY)
 
 # 📝 Usage
