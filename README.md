@@ -1,12 +1,15 @@
-# fit
+<h1 align="center">fit</h1>
 
-`fit` は `git` をラップして目に優しくしたもの。
+`fit` is a command line tool that helps you use git.  
 
 # Description
 
+`fit` is a CLI tool that helps you work with git.  
+The concept is to be able to use git commands as they are in `fit`.  
+
 **_DEMO:_**
 
-![Demo](https://image-url.gif)
+[![asciicast](https://asciinema.org/a/gckUiq3HaLLM2dwmwkAuDLBdY.svg)](https://asciinema.org/a/gckUiq3HaLLM2dwmwkAuDLBdY)
 
 # 📝 Usage
 
