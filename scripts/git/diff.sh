@@ -51,9 +51,9 @@ fit::diff::fzf() {
 
   # コマンドを生成
   local git_diff git_diff_preview
-  git_diff=$(echo "fit git diff --name-only ${cached} ${no_index} ${commits["old"]} ${commits["new"]} $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}" | sed -e 's/ \+/ /g')
-  git_diff_preview=$(echo "git diff ${cached} ${no_index} ${commits["old"]} ${commits["new"]} --" | sed -e 's/ \+/ /g')
-  git_difftool=$(echo "git difftool ${cached} ${no_index} ${commits["old"]} ${commits["new"]} --" | sed -e 's/ \+/ /g')
+  git_diff="fit git diff --name-only ${cached} ${no_index} ${commits["old"]} ${commits["new"]} $([[ ${#pathes[*]} -gt 0 ]] && echo "--") ${pathes[*]}"
+  git_diff_preview="git diff ${cached} ${no_index} ${commits["old"]} ${commits["new"]} --"
+  git_difftool="git difftool ${cached} ${no_index} ${commits["old"]} ${commits["new"]} --"
 
   local header
   header="${GRAY}*${NORMAL} ${WHITE}KeyBindings${NORMAL}                           ${GRAY}*${NORMAL} ${WHITE}Change Options${NORMAL}
@@ -63,7 +63,7 @@ fit::diff::fzf() {
 "
 
   # less -R を入れないとすぐに終了する
-  eval "${git_diff}" | sed -e '$d' |
+  eval "${git_diff}" |
     fit::fzf \
       --header "${header}" \
       --preview "eval ${git_diff_preview} {1} | eval ${FIT_PAGER_DIFF}" \

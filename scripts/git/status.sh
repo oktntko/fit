@@ -34,27 +34,25 @@ fit::status::fzf() {
 
 "
 
-  # TODO: add の場合 unstaging なファイルのみ/restore の場合 staging なファイルのみ表示
-  local statuses
-
   # TODO: [R]renameに対応できていないと思われる
   # --preview や --execute で実行するコマンドはPATHが通っていないと実行できない
   # 例えば、nvm => NG だけど、nvm を使ってインストールした node => OK.
-  statuses="fit status-all"
-  reload="reload(eval $statuses)"
-  files=$(
-    eval "$statuses" |
-      fit::fzf \
-        --header "$header" \
-        --multi \
-        --preview "fit status::preview {1} {2}" \
-        --bind "ctrl-s:execute-silent(fit status::actions::change-status {+2})+$reload" \
-        --bind "ctrl-a:execute-silent(fit status::actions::call-git-add-all)+$reload" \
-        --bind "ctrl-r:execute-silent(fit status::actions::call-git-restore-worktree {+2})+$reload" \
-        --bind "ctrl-p:execute(fit status::actions::patch-status {2})+$reload" \
-        --bind "ctrl-d:execute-silent(fit utils::remove-file {2})+$reload" \
-        --bind "ctrl-e:execute(fit utils::edit-file {2})+$reload" \
-  )
+  local fit_fzf
+  fit_fzf="fit::fzf \\
+        --header \"$header\" \\
+        --multi \\
+        --preview \"fit status::preview {1} {2}\" \\
+        --bind \"ctrl-s:execute-silent(fit status::actions::change-status {+2})+reload(fit status-all)\" \\
+        --bind \"ctrl-a:execute-silent(fit status::actions::call-git-add-all)+reload(fit status-all)\" \\
+        --bind \"ctrl-r:execute-silent(fit status::actions::call-git-restore-worktree {+2})+reload(fit status-all)\" \\
+        --bind \"ctrl-p:execute(fit status::actions::patch-status {2})+reload(fit status-all)\" \\
+        --bind \"ctrl-d:execute-silent(fit utils::remove-file {2})+reload(fit status-all)\" \\
+        --bind \"ctrl-e:execute(fit utils::edit-file {2})+reload(fit status-all)\" \\
+        "
+
+  local files
+  files=$(fit::status-all | eval "${fit_fzf}")
+
   if [[ $? == 0 ]]; then
     if [[ $mode == "add    " ]]; then
       [[ -n "$files" ]] && echo "$files" | awk '{ print $2 }' | fit::utils::valid-files | xargs git add
@@ -88,19 +86,19 @@ fit::status-all() {
   untracked=$(echo "${statuses}" | fit status::list-files --untracked-only)
 
   if [[ -n $stating ]]; then
-    echo "${GREEN}Changes to be committed:${NORMAL}"
+    echo "${GRAY}*${NORMAL} ${GREEN}Changes to be committed:${NORMAL}"
     echo "${stating}"
     [[ -n $unstaging ]] || [[ -n $untracked ]] && echo
   fi
 
   if [[ -n $unstaging ]]; then
-    echo "${RED}Changes not staged for commit:${NORMAL}"
+    echo "${GRAY}*${NORMAL} ${RED}Changes not staged for commit:${NORMAL}"
     echo "${unstaging}"
     [[ -n $untracked ]] && echo
   fi
 
   if [[ -n $untracked ]]; then
-    echo "${YELLOW}Untracked files:${NORMAL}"
+    echo "${GRAY}*${NORMAL} ${YELLOW}Untracked files:${NORMAL}"
     echo "${untracked}"
   fi
 }
