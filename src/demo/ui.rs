@@ -14,6 +14,8 @@ use tui::{
 };
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
+  // Layout から画面の要素を作る
+  // Constraint が画面の要素
   let chunks = Layout::default()
     .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
     .split(f.size());
@@ -27,13 +29,34 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     .block(Block::default().borders(Borders::ALL).title(app.title))
     .highlight_style(Style::default().fg(Color::Yellow))
     .select(app.tabs.index);
+  // 0番目(画面上) にタブを配置
   f.render_widget(tabs, chunks[0]);
+  // 1盤目(画面中央) にメインコンテンツを配置
   match app.tabs.index {
-    0 => draw_first_tab(f, app, chunks[1]),
-    1 => draw_second_tab(f, app, chunks[1]),
-    2 => draw_third_tab(f, app, chunks[1]),
+    0 => draw_status_tab(f, app, chunks[1]),
+    1 => draw_first_tab(f, app, chunks[1]),
+    2 => draw_second_tab(f, app, chunks[1]),
+    3 => draw_third_tab(f, app, chunks[1]),
     _ => {}
   };
+}
+
+fn draw_status_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+where
+  B: Backend,
+{
+  let chunks = Layout::default()
+    .constraints(
+      [
+        Constraint::Percentage(50),
+        Constraint::Percentage(50),
+      ]
+      .as_ref(),
+    )
+    .direction(Direction::Horizontal)
+    .split(area);
+  draw_gauges(f, app, chunks[0]);
+  draw_charts(f, app, chunks[1]);
 }
 
 fn draw_first_tab<B>(f: &mut Frame<B>, app: &mut App, area: Rect)

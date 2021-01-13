@@ -24,8 +24,8 @@ enum Event<I> {
   Tick,
 }
 
-/// Crossterm demo
-#[derive(Debug, FromArgs)]
+/// 引数
+#[derive(FromArgs)]
 struct Cli {
   /// time in ms between two ticks.
   #[argh(option, default = "250")]
@@ -36,10 +36,13 @@ struct Cli {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+  // 引数パース
   let cli: Cli = argh::from_env();
 
+  // crossterm に入力イベントを送るために有効にする
   enable_raw_mode()?;
 
+  // terminal を使うための準備
   let mut stdout = stdout();
   execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
 
@@ -48,7 +51,8 @@ fn main() -> Result<(), Box<dyn Error>> {
   let mut terminal = Terminal::new(backend)?;
 
   // Setup input handling
-  let (tx, rx) = mpsc::channel();
+  let (tx, rx /* tx=sender, rx=receiver */) = mpsc::channel();
+  // tx.send で rx.recv へイベントを送る
 
   let tick_rate = Duration::from_millis(cli.tick_rate);
   thread::spawn(move || {
