@@ -12,6 +12,6 @@ tui = { version = "0.14", default-features = false, features = ['crossterm'] }
 rand = "0.7"
 argh = "0.1"
 regex = "1"
-git2 = "0.13"
+git2 = { version = "0.13", features = ["vendored-openssl"] }
 
 [dev-dependencies]
