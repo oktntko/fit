@@ -12,5 +12,6 @@ tui = { version = "0.14", default-features = false, features = ['crossterm'] }
 rand = "0.7"
 argh = "0.1"
 regex = "1"
+git2 = "0.13"
 
 [dev-dependencies]
