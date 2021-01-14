@@ -1,4 +1,5 @@
 use crate::demo::App;
+use crate::git::draw_status;
 use tui::{
   backend::Backend,
   layout::{Constraint, Direction, Layout, Rect},
@@ -46,16 +47,10 @@ where
   B: Backend,
 {
   let chunks = Layout::default()
-    .constraints(
-      [
-        Constraint::Percentage(50),
-        Constraint::Percentage(50),
-      ]
-      .as_ref(),
-    )
+    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
     .direction(Direction::Horizontal)
     .split(area);
-  draw_gauges(f, app, chunks[0]);
+  draw_status(f, chunks[0]);
   draw_charts(f, app, chunks[1]);
 }
 

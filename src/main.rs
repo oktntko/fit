@@ -3,6 +3,9 @@ mod demo;
 #[allow(dead_code)]
 mod util;
 
+// 上のレベルでmod宣言すると下のレベルでも使えるようになる
+mod git;
+
 use crate::demo::{ui, App};
 use argh::FromArgs;
 use crossterm::{
