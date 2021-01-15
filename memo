@@ -1,0 +1,6 @@
+libssh2/src/comp.c:41:10: fatal error: zlib.h: No such file or directory
+
+-> 発生したら
+sudo apt-get update
+sudo apt-get install libz-dev libgit2-dev
+
