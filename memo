@@ -1,6 +1,39 @@
-libssh2/src/comp.c:41:10: fatal error: zlib.h: No such file or directory
+error while loading shared libraries: libgit2.so.1.1: cannot open shared object file: No such file or directory
 
--> 発生したら
+# 発生したら
 sudo apt-get update
+sudo apt update
+
 sudo apt-get install libz-dev libgit2-dev
+
+# 何が必要か調べる
+❯ ldd target/debug/fit                                                                                                                                   ─╯
+        linux-vdso.so.1 (0x00007fff08fad000)
+        libgit2.so.1.1 => /home/oktntko/workspace/libgit2/build/libgit2.so.1.1 (0x00007fb47a726000)
+        libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fb47a702000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fb47a6df000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fb47a590000)
+        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fb47a58a000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fb47a398000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007fb47aecf000)
+        libssl.so.1.1 => /home/linuxbrew/.linuxbrew/Cellar/openssl@1.1/1.1.1i/lib/libssl.so.1.1 (0x00007fb47a101000)
+        libcrypto.so.1.1 => /home/linuxbrew/.linuxbrew/Cellar/openssl@1.1/1.1.1i/lib/libcrypto.so.1.1 (0x00007fb479c1f000)
+        libssh2.so.1 => /home/linuxbrew/.linuxbrew/Cellar/libssh2/1.9.0_1/lib/libssh2.so.1 (0x00007fb4799df000)
+        libz.so.1 => /home/linuxbrew/.linuxbrew/lib/libz.so.1 (0x00007fb4797ca000)
+
+# cmake 使う
+❯ sudo apt install gcc cmake pkg-config
+# libgit2 をclone
+❯ git clone git@github.com:libgit2/libgit2.git
+# build
+❯ cd libgit2
+❯ git checkout -b v1.1.0
+❯ mkdir build && cd build
+❯ cmake ..
+❯ cmake --build .
+# libgit2.so.1.1 ができていることを確認する
+❯ find . -name "libgit2.so.1.1"
+❯ pwd
+# LD_LIBRARY_PATH のパスに追加する
+❯ export LD_LIBRARY_PATH="/home/oktntko/workspace/libgit2/build:$LD_LIBRARY_PATH" >> ~/.zshrc
 

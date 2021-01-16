@@ -16,8 +16,46 @@ struct Commit {
   hash: String,
   message: String,
 }
-use git2::{Error, ErrorCode, Repository, StatusOptions, SubmoduleIgnore};
+use git2::{Error, ErrorClass, ErrorCode, Repository, Status, StatusOptions, SubmoduleIgnore};
 
+///
+#[derive(Copy, Clone, Hash, PartialEq, Debug)]
+pub enum StatusItemType {
+  ///
+  New,
+  ///
+  Modified,
+  ///
+  Deleted,
+  ///
+  Renamed,
+  ///
+  Typechange,
+}
+///
+#[derive(Clone, Hash, PartialEq, Debug)]
+pub struct StatusItem {
+  ///
+  pub path: String,
+  ///
+  pub status: StatusItemType,
+}
+
+impl From<Status> for StatusItemType {
+  fn from(s: Status) -> Self {
+    if s.is_index_new() || s.is_wt_new() {
+      Self::New
+    } else if s.is_index_deleted() || s.is_wt_deleted() {
+      Self::Deleted
+    } else if s.is_index_renamed() || s.is_wt_renamed() {
+      Self::Renamed
+    } else if s.is_index_typechange() || s.is_wt_typechange() {
+      Self::Typechange
+    } else {
+      Self::Modified
+    }
+  }
+}
 pub fn draw_status<B>(f: &mut Frame<B>, area: Rect)
 where
   B: Backend,
@@ -28,41 +66,22 @@ where
     // return Err(Error::from_str("cannot report status on bare repository"));
   }
   let mut opts = StatusOptions::new();
+  opts.include_untracked(true).recurse_untracked_dirs(true);
   let statuses = repo.statuses(Some(&mut opts)).unwrap();
 
-  // let output = Command::new("exa")
-  //   // プロセスを実行するディレクトリを指定する
-  //   .current_dir("./")
-  //   .output()
-  //   .expect("failed to execute process");
+  let text: Vec<_> = statuses
+    .iter()
+    .map(|e| {
+      let status: Status = e.status();
+      let path = std::str::from_utf8(e.path_bytes()).unwrap().to_string();
 
-  // let hello: Vec<u8> = output.stdout;
-
-  // let exa: &str = std::str::from_utf8(&hello).unwrap();
-
-  let output = Command::new("git")
-    .current_dir("./")
-    .arg("-c")
-    .arg("color.status=always")
-    .arg("log")
-    .arg("--oneline")
-    .output()
-    .expect("failed to execute process");
-
-  let hello: Vec<u8> = output.stdout;
-
-  // let pattern = Regex::new(
-  //   r"(?x)
-  // ([0-9a-fA-F]+) # commit hash
-  // (.*)           # The commit message",
-  // )
-  // .unwrap();
-
-  let text: Vec<_> = std::str::from_utf8(&hello)
-    .unwrap()
-    .lines()
-    .map(|cap| Spans::from(cap))
-    .take(5)
+      return StatusItem {
+        path,
+        status: StatusItemType::from(status),
+      };
+    })
+    .map(|e| e.path)
+    .map(|e| Spans::from(e))
     .collect();
   // let text = vec![
   //   Spans::from(exa),
