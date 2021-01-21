@@ -1,3 +1,5 @@
+use log::{debug, error, info, trace, warn};
+use log4rs;
 mod demo;
 #[allow(dead_code)]
 mod util;
@@ -23,6 +25,8 @@ struct Cli {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+  log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
+
   let cli: Cli = argh::from_env();
 
   let events = Events::with_config(Config {
