@@ -1,8 +1,11 @@
-use crate::ui::common::Tab;
+use crate::ui::common::Screen;
 use log::debug;
 use termion::event::Key;
-use tui::backend::Backend;
 use tui::{
+  backend::Backend,
+  layout::{Constraint, Direction, Layout, Rect},
+  style::{Color, Modifier, Style},
+  text::{Span, Spans},
   widgets::{Block, Borders, Tabs},
   Frame,
 };
@@ -32,7 +35,7 @@ where
   B: Backend,
 {
   pub should_quit: bool,
-  pub tabs: TabsState<'a, B>,
+  pub menu: Menu<'a, B>,
   pub debug_mode: bool,
 }
 
@@ -43,15 +46,44 @@ where
   pub fn new() -> App<'a, B> {
     App {
       should_quit: false,
-      tabs: TabsState::new(),
+      menu: Menu::new(),
       debug_mode: false,
     }
   }
 
   pub fn draw(&mut self, f: &mut Frame<B>) {
-    let size = f.size();
-    let block = Block::default().title("Block").borders(Borders::ALL);
-    f.render_widget(block, size);
+    // menu
+    let chunks = Layout::default()
+      .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+      .split(f.size());
+    // TODO: screen の関数としてtitle()を定義するとエラーになる
+    let titles = self
+      .menu
+      .titles
+      .iter()
+      .map(|t| Spans::from(Span::styled(*t, Style::default().fg(Color::Green))))
+      .collect();
+    let tabs = Tabs::new(titles)
+      .block(Block::default().borders(Borders::ALL))
+      .highlight_style(Style::default().fg(Color::Yellow))
+      .select(self.menu.index);
+    f.render_widget(tabs, chunks[0]);
+
+    let chunk = if self.debug_mode {
+      let chunks = Layout::default()
+        .constraints([Constraint::Percentage(70), Constraint::Min(0)].as_ref())
+        .direction(Direction::Horizontal)
+        .split(chunks[1]);
+
+      let block = Block::default().title("Debug").borders(Borders::ALL);
+      f.render_widget(block, chunks[1]);
+
+      chunks[0]
+    } else {
+      chunks[1]
+    };
+
+    // self.menu.current().draw(f, chunk)
   }
 
   pub fn on_key_event(&mut self, key: Key) {
@@ -63,6 +95,12 @@ where
         }
         _ => {}
       },
+      Key::F(u) => match u {
+        12 => {
+          self.debug_mode = !self.debug_mode;
+        }
+        _ => {}
+      },
       _ => {}
     }
   }
@@ -70,33 +108,41 @@ where
   pub fn on_tick(&mut self) {}
 }
 
-pub struct TabsState<'a, B>
+pub struct Menu<'a, B>
 where
   B: Backend,
 {
-  pub tabs: Vec<&'a dyn Tab<B>>,
+  // TODO: screen と titleの一体化.
+  pub titles: Vec<&'a str>,
+  pub screens: Vec<&'a mut dyn Screen<B>>,
   pub index: usize,
 }
 
-impl<'a, B> TabsState<'a, B>
+impl<'a, B> Menu<'a, B>
 where
   B: Backend,
 {
-  pub fn new() -> TabsState<'a, B> {
-    TabsState {
-      tabs: vec![],
+  pub fn new() -> Menu<'a, B> {
+    Menu {
+      titles: vec![],
+      screens: vec![],
       index: 1,
     }
   }
+
+  pub fn current(&mut self) -> &mut dyn Screen<B> {
+    self.screens[self.index]
+  }
+
   pub fn next(&mut self) {
-    self.index = (self.index + 1) % self.tabs.len();
+    self.index = (self.index + 1) % self.screens.len();
   }
 
   pub fn previous(&mut self) {
     if self.index > 0 {
       self.index -= 1;
     } else {
-      self.index = self.tabs.len() - 1;
+      self.index = self.screens.len() - 1;
     }
   }
 }
