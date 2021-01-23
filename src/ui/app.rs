@@ -58,10 +58,29 @@ where
   }
 
   pub fn draw(&mut self, f: &mut Frame<B>) {
+    // debug
+    let chunk = if self.debug_mode {
+      let chunks = Layout::default()
+        .constraints([Constraint::Percentage(70), Constraint::Min(0)].as_ref())
+        .direction(Direction::Horizontal)
+        .split(f.size());
+
+      let block = Block::default().title("Debug").borders(Borders::ALL);
+      f.render_widget(block, chunks[1]);
+
+      chunks[0]
+    } else {
+      let chunks = Layout::default()
+        .constraints([Constraint::Percentage(100)].as_ref())
+        .split(f.size());
+
+      chunks[0]
+    };
+
     // menu
     let chunks = Layout::default()
       .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
-      .split(f.size());
+      .split(chunk);
     let titles = self
       .titles
       .iter()
@@ -73,21 +92,7 @@ where
       .select(self.selected_menu_index);
     f.render_widget(tabs, chunks[0]);
 
-    let chunk = if self.debug_mode {
-      let chunks = Layout::default()
-        .constraints([Constraint::Percentage(70), Constraint::Min(0)].as_ref())
-        .direction(Direction::Horizontal)
-        .split(chunks[1]);
-
-      let block = Block::default().title("Debug").borders(Borders::ALL);
-      f.render_widget(block, chunks[1]);
-
-      chunks[0]
-    } else {
-      chunks[1]
-    };
-
-    self.menu[self.selected_menu_index].draw(f, chunk);
+    self.menu[self.selected_menu_index].draw(f, chunks[1]);
   }
 
   pub fn on_key_event(&mut self, key: Key) {
