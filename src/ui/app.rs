@@ -1,4 +1,5 @@
 use crate::ui::common::Screen;
+use crate::ui::screen::status::Status;
 use log::debug;
 use termion::event::Key;
 use tui::{
@@ -83,7 +84,7 @@ where
       chunks[1]
     };
 
-    // self.menu.current().draw(f, chunk)
+    self.menu.current().draw(f, chunk);
   }
 
   pub fn on_key_event(&mut self, key: Key) {
@@ -114,7 +115,7 @@ where
 {
   // TODO: screen と titleの一体化.
   pub titles: Vec<&'a str>,
-  pub screens: Vec<&'a mut dyn Screen<B>>,
+  pub screens: Vec<Box<dyn Screen<B>>>,
   pub index: usize,
 }
 
@@ -124,13 +125,13 @@ where
 {
   pub fn new() -> Menu<'a, B> {
     Menu {
-      titles: vec![],
-      screens: vec![],
+      titles: vec!["status"],
+      screens: vec![Box::new(Status::new())],
       index: 1,
     }
   }
 
-  pub fn current(&mut self) -> &mut dyn Screen<B> {
+  pub fn current(&mut self) -> Box<dyn Screen<B>> {
     self.screens[self.index]
   }
 
