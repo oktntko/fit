@@ -36,8 +36,11 @@ where
   B: Backend,
 {
   pub should_quit: bool,
-  pub menu: Menu<'a, B>,
   pub debug_mode: bool,
+  // TODO: screen の関数としてtitle()を定義するとエラーになる
+  pub titles: Vec<&'a str>,
+  pub menu: Vec<Box<dyn Screen<B>>>,
+  pub selected_menu_index: usize,
 }
 
 impl<'a, B> App<'a, B>
@@ -47,8 +50,10 @@ where
   pub fn new() -> App<'a, B> {
     App {
       should_quit: false,
-      menu: Menu::new(),
       debug_mode: false,
+      titles: vec!["status", "hoge"],
+      menu: vec![Box::new(Status::new()), Box::new(Status::new())],
+      selected_menu_index: 0,
     }
   }
 
@@ -57,9 +62,7 @@ where
     let chunks = Layout::default()
       .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
       .split(f.size());
-    // TODO: screen の関数としてtitle()を定義するとエラーになる
     let titles = self
-      .menu
       .titles
       .iter()
       .map(|t| Spans::from(Span::styled(*t, Style::default().fg(Color::Green))))
@@ -67,7 +70,7 @@ where
     let tabs = Tabs::new(titles)
       .block(Block::default().borders(Borders::ALL))
       .highlight_style(Style::default().fg(Color::Yellow))
-      .select(self.menu.index);
+      .select(self.selected_menu_index);
     f.render_widget(tabs, chunks[0]);
 
     let chunk = if self.debug_mode {
@@ -84,7 +87,7 @@ where
       chunks[1]
     };
 
-    self.menu.current().draw(f, chunk);
+    self.menu[self.selected_menu_index].draw(f, chunk);
   }
 
   pub fn on_key_event(&mut self, key: Key) {
@@ -102,48 +105,30 @@ where
         }
         _ => {}
       },
+      Key::Char(c) => match c {
+        '\t' => {
+          self.next();
+        }
+        _ => {}
+      },
+      Key::BackTab => {
+        self.previous();
+      }
       _ => {}
     }
   }
 
   pub fn on_tick(&mut self) {}
-}
-
-pub struct Menu<'a, B>
-where
-  B: Backend,
-{
-  // TODO: screen と titleの一体化.
-  pub titles: Vec<&'a str>,
-  pub screens: Vec<Box<dyn Screen<B>>>,
-  pub index: usize,
-}
-
-impl<'a, B> Menu<'a, B>
-where
-  B: Backend,
-{
-  pub fn new() -> Menu<'a, B> {
-    Menu {
-      titles: vec!["status"],
-      screens: vec![Box::new(Status::new())],
-      index: 1,
-    }
-  }
-
-  pub fn current(&mut self) -> Box<dyn Screen<B>> {
-    self.screens[self.index]
-  }
 
   pub fn next(&mut self) {
-    self.index = (self.index + 1) % self.screens.len();
+    self.selected_menu_index = (self.selected_menu_index + 1) % self.menu.len();
   }
 
   pub fn previous(&mut self) {
-    if self.index > 0 {
-      self.index -= 1;
+    if self.selected_menu_index > 0 {
+      self.selected_menu_index -= 1;
     } else {
-      self.index = self.screens.len() - 1;
+      self.selected_menu_index = self.menu.len() - 1;
     }
   }
 }
