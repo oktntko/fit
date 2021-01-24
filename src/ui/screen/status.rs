@@ -30,4 +30,6 @@ where
   fn on_key_event(&mut self, key: termion::event::Key) {
     debug!("key {:?}", key);
   }
+  fn on_entered(&mut self) {}
+  fn on_left(&mut self) {}
 }

@@ -54,6 +54,7 @@ impl Events {
     };
     // tick handle
     let tick_handle = {
+      let tx = tx.clone();
       thread::spawn(move || loop {
         if tx.send(Event::Tick).is_err() {
           error!("error!");
