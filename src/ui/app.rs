@@ -2,9 +2,9 @@ use crate::ui::common::Screen;
 use crate::ui::screen::status::Status;
 use log::{debug, warn};
 use std::{
-  io::{BufRead, BufReader},
+  io::{BufRead, BufReader, Read},
   process::{Command, Stdio},
-  sync::mpsc,
+  sync::{mpsc, Arc, Mutex},
   thread,
 };
 use termion::event::Key;
@@ -13,7 +13,7 @@ use tui::{
   layout::{Constraint, Direction, Layout, Rect},
   style::{Color, Modifier, Style},
   text::{Span, Spans},
-  widgets::{Block, Borders, List, ListItem, Tabs},
+  widgets::{Block, Borders, List, ListItem, ListState, Tabs},
   Frame,
 };
 // +-----------------------------------------------------------------+
@@ -73,8 +73,7 @@ where
         .direction(Direction::Horizontal)
         .split(f.size());
 
-      let block = Block::default().title("Debug").borders(Borders::ALL);
-      f.render_widget(block, chunks[1]);
+      self.debug_screen.draw(f, chunks[1]);
 
       chunks[0]
     } else {
@@ -151,58 +150,25 @@ where
   }
 }
 
-struct Debug<'a> {
-  pub child: Option<std::process::Child>,
-  pub watching: bool,
-  pub lines: Vec<&'a str>,
+struct Debug {
+  pub state: ListState,
 }
 
-impl<'a> Debug<'a> {
-  pub fn new() -> Debug<'a> {
+impl Debug {
+  pub fn new() -> Debug {
     Debug {
-      child: None,
-      watching: false,
-      lines: vec![],
+      state: ListState::default(),
     }
   }
 }
 
-impl<'a, B> Screen<B> for Debug<'a>
+impl<B> Screen<B> for Debug
 where
   B: tui::backend::Backend,
 {
   fn draw(&mut self, f: &mut tui::Frame<B>, area: tui::layout::Rect) {
-    let lines: Vec<ListItem> = self
-      .lines
-      .iter()
-      .map(|i| ListItem::new(vec![Spans::from(Span::raw(*i))]))
-      .collect();
-    let lines = List::new(lines)
-      .block(Block::default().title("Debug").borders(Borders::ALL))
-      .highlight_style(Style::default().add_modifier(Modifier::BOLD))
-      .highlight_symbol("❯ ");
-    f.render_widget(lines, area);
-  }
-  fn reload(&mut self) {}
-  fn on_key_event(&mut self, key: termion::event::Key) {
-    debug!("key {:?}", key);
-  }
-  fn on_entered(&mut self) {
-    self.watching = true;
-    match &mut self.child {
-      Some(child) => {
-        if let Err(e) = child.kill() {
-          warn!("cannot kill process: {}", e);
-        }
-        self.child = None;
-      }
-      None => {
-        debug!("ok");
-      }
-    }
-
     let mut child = Command::new("tail")
-      .args(&["--silent", "-n", "0", "-f", "fit.log"])
+      .args(&["--silent", "-n", "100", "fit.log"])
       .current_dir("./log")
       .stdin(Stdio::null())
       .stdout(Stdio::piped())
@@ -210,33 +176,30 @@ where
       .spawn()
       .unwrap();
     let mut reader = BufReader::new(child.stdout.take().unwrap());
-    self.child = Some(child);
-    thread::spawn(move || loop {
-      let mut line = String::new();
-      if let Err(e) = reader.read_line(&mut line) {
-        warn!("unable to read line: {}", e);
-        break;
-      }
-      let line: &str = &line.clone();
-      // callback(line.replace("\n", ""));
-      // self.lines.push(Box::new(line));
-      // if !self.watching {
-      //   break;
-      // }
-    });
+
+    let mut buf = vec![];
+    if let Err(e) = reader.read_to_end(&mut buf) {
+      warn!("cannot kill process: {}", e);
+    } else {
+      let lines = std::str::from_utf8(&buf).unwrap();
+      let lines: Vec<ListItem> = lines
+        .lines()
+        .map(|i| ListItem::new(vec![Spans::from(Span::raw(i))]))
+        .collect();
+      self.state.select(Some(lines.len() - 1));
+      let lines = List::new(lines)
+        .block(Block::default().title("Debug").borders(Borders::ALL))
+        .highlight_style(Style::default().add_modifier(Modifier::BOLD))
+        .highlight_symbol("❯ ");
+      f.render_stateful_widget(lines, area, &mut self.state);
+    }
+  }
+  fn reload(&mut self) {}
+  fn on_key_event(&mut self, key: termion::event::Key) {}
+  fn on_entered(&mut self) {
+    self.state = ListState::default();
   }
   fn on_left(&mut self) {
-    self.watching = false;
-    match &mut self.child {
-      Some(child) => {
-        if let Err(e) = child.kill() {
-          warn!("cannot kill process: {}", e);
-        }
-        self.child = None;
-      }
-      None => {
-        debug!("error");
-      }
-    }
+    self.state = ListState::default();
   }
 }
