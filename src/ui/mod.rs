@@ -1,3 +1,3 @@
-pub mod common;
 pub mod app;
-pub mod screen;
+pub mod common;
+pub mod view;
