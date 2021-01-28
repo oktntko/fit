@@ -37,3 +37,64 @@ sudo apt-get install libz-dev libgit2-dev
 # LD_LIBRARY_PATH のパスに追加する
 ❯ export LD_LIBRARY_PATH="/home/oktntko/workspace/libgit2/build:$LD_LIBRARY_PATH" >> ~/.zshrc
 
+warning: libssh2/src/comp.c:41:10: fatal error: zlib.h: No such file or directory
+warning:    41 | #include <zlib.h>
+warning:       |          ^~~~~~~~
+warning: compilation terminated.
+
+error: failed to run custom build command for `libssh2-sys v0.2.20`
+
+Caused by:
+  process didn't exit successfully: `/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd355e4f41908c67/build-script-build` (exit code: 1)
+  --- stdout
+  cargo:rerun-if-env-changed=LIBSSH2_SYS_USE_PKG_CONFIG
+  cargo:include=/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include
+  cargo:root=/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out
+  cargo:rerun-if-env-changed=DEP_Z_INCLUDE
+  cargo:rerun-if-env-changed=DEP_OPENSSL_INCLUDE
+  TARGET = Some("x86_64-unknown-linux-gnu")
+  OPT_LEVEL = Some("0")
+  HOST = Some("x86_64-unknown-linux-gnu")
+  CC_x86_64-unknown-linux-gnu = None
+  CC_x86_64_unknown_linux_gnu = None
+  HOST_CC = None
+  CC = None
+  CFLAGS_x86_64-unknown-linux-gnu = None
+  CFLAGS_x86_64_unknown_linux_gnu = None
+  HOST_CFLAGS = None
+  CFLAGS = None
+  CRATE_CC_NO_DEFAULTS = None
+  DEBUG = Some("true")
+  CARGO_CFG_TARGET_FEATURE = Some("fxsr,sse,sse2")
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/blowfish.o" "-c" "libssh2/src/blowfish.c"
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/bcrypt_pbkdf.o" "-c" "libssh2/src/bcrypt_pbkdf.c"
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/global.o" "-c" "libssh2/src/global.c"
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/agent.o" "-c" "libssh2/src/agent.c"
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/comp.o" "-c" "libssh2/src/comp.c"
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/crypt.o" "-c" "libssh2/src/crypt.c"
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/channel.o" "-c" "libssh2/src/channel.c"
+  cargo:warning=libssh2/src/comp.c:41:10: fatal error: zlib.h: No such file or directory
+  cargo:warning=   41 | #include <zlib.h>
+  cargo:warning=      |          ^~~~~~~~
+  cargo:warning=compilation terminated.
+  exit code: 0
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/hostkey.o" "-c" "libssh2/src/hostkey.c"
+  exit code: 1
+  running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/keepalive.o" "-c" "libssh2/src/keepalive.c"
+  exit code: 0
+  exit code: 0
+  exit code: 0
+  exit code: 0
+  exit code: 0
+  exit code: 0
+  exit code: 0
+
+  --- stderr
+  fatal: not a git repository (or any of the parent directories): .git
+
+
+  error occurred: Command "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/include" "-I" "libssh2/src" "-I" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build" "-I" "/home/oktntko/workspace/fit/target/debug/build/openssl-sys-8e875086b978018e/out/openssl-build/install/include" "-fvisibility=hidden" "-DHAVE_LONGLONG" "-DHAVE_SNPRINTF" "-DHAVE_UNISTD_H" "-DHAVE_INTTYPES_H" "-DHAVE_STDLIB_H" "-DHAVE_SYS_SELECT_H" "-DHAVE_SYS_SOCKET_H" "-DHAVE_SYS_IOCTL_H" "-DHAVE_SYS_TIME_H" "-DHAVE_SYS_UN_H" "-DHAVE_O_NONBLOCK" "-DLIBSSH2_OPENSSL" "-DHAVE_LIBCRYPT32" "-DHAVE_EVP_AES_128_CTR" "-DHAVE_POLL" "-DLIBSSH2_DH_GEX_NEW" "-DLIBSSH2_HAVE_ZLIB" "-o" "/home/oktntko/workspace/fit/target/debug/build/libssh2-sys-fd3f0494e3f6409e/out/build/libssh2/src/comp.o" "-c" "libssh2/src/comp.c" with args "cc" did not execute successfully (status code exit code: 1).
+
+
+warning: build failed, waiting for other jobs to finish...
+error: build failed
