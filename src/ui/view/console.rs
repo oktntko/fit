@@ -1,4 +1,4 @@
-use crate::ui::common::Screen;
+use crate::ui::common::View;
 use log::warn;
 use std::{
   io::{BufReader, Read},
@@ -22,7 +22,7 @@ impl Console {
   }
 }
 
-impl<B> Screen<B> for Console
+impl<B> View<B> for Console
 where
   B: tui::backend::Backend,
 {

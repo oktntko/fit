@@ -1,4 +1,4 @@
-use crate::ui::common::Screen;
+use crate::ui::common::View;
 use crate::ui::view::{console::Console, status::Status};
 use log::debug;
 use termion::event::Key;
@@ -38,10 +38,10 @@ where
 {
   pub should_quit: bool,
   debug_mode: bool,
-  debug_screen: Box<dyn Screen<B>>,
+  debug_screen: Box<dyn View<B>>,
   // TODO: view の関数としてtitle()を定義するとエラーになる
   titles: Vec<&'a str>,
-  menu: Vec<Box<dyn Screen<B>>>,
+  menu: Vec<Box<dyn View<B>>>,
   selected_menu_index: usize,
 }
 

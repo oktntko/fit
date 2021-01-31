@@ -1,5 +1,5 @@
 use crate::api::git::{FitStatus, Git};
-use crate::ui::common::Screen;
+use crate::ui::common::View;
 use log::debug;
 use tui::{
   layout::{Constraint, Layout},
@@ -22,7 +22,7 @@ impl Status {
   }
 }
 
-impl<'a, B> Screen<B> for Status
+impl<B> View<B> for Status
 where
   B: tui::backend::Backend,
 {
@@ -58,17 +58,19 @@ where
     f.render_stateful_widget(t, chunks[0], &mut self.state);
   }
 
-  fn reload(&mut self) {}
+  fn reload(&mut self) {
+    let git = Git::new();
+    let statuses = git.status();
+    debug!("status {:?}", statuses);
+    self.statuses = statuses;
+  }
 
   fn on_key_event(&mut self, key: termion::event::Key) {
     debug!("key {:?}", key);
   }
 
   fn on_entered(&mut self) {
-    let git = Git::new();
-    let statuses = git.status();
-    debug!("status {:?}", statuses);
-    self.statuses = statuses;
+    // self.reload();
   }
 
   fn on_left(&mut self) {}

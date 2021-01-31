@@ -1,4 +1,4 @@
-pub trait Screen<B>
+pub trait View<B>
 where
   B: tui::backend::Backend,
 {
