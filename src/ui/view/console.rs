@@ -1,4 +1,4 @@
-use crate::ui::common::View;
+use crate::ui::common::{Drawable, KeyHandlable, Reloadable};
 use log::warn;
 use std::{
   io::{BufReader, Read},
@@ -22,11 +22,8 @@ impl Console {
   }
 }
 
-impl<B> View<B> for Console
-where
-  B: tui::backend::Backend,
-{
-  fn draw(&mut self, f: &mut tui::Frame<B>, area: tui::layout::Rect) {
+impl Drawable for Console {
+  fn draw<B: tui::backend::Backend>(&mut self, f: &mut tui::Frame<B>, area: tui::layout::Rect) {
     let mut child = Command::new("tail")
       .args(&["--silent", "-n", "100", "fit.log"])
       .current_dir("./log")
@@ -54,7 +51,13 @@ where
       f.render_stateful_widget(lines, area, &mut self.state);
     }
   }
+}
+
+impl Reloadable for Console {
   fn reload(&mut self) {}
+}
+
+impl KeyHandlable for Console {
   fn on_key_event(&mut self, key: termion::event::Key) {}
   fn on_entered(&mut self) {
     self.state = ListState::default();

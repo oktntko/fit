@@ -1,9 +1,8 @@
-use crate::ui::common::View;
+use crate::ui::common::{Drawable, KeyHandlable, Reloadable};
 use crate::ui::view::{console::Console, status::Status};
 use log::debug;
 use termion::event::Key;
 use tui::{
-  backend::Backend,
   layout::{Constraint, Direction, Layout},
   style::{Color, Style},
   text::{Span, Spans},
@@ -32,35 +31,24 @@ use tui::{
 // |-----------------------------------------------------------------|
 // +-----------------------------------------------------------------+
 
-pub struct App<'a, B>
-where
-  B: Backend,
-{
+pub struct App {
   pub should_quit: bool,
   debug_mode: bool,
-  debug_screen: Box<dyn View<B>>,
-  // TODO: view の関数としてtitle()を定義するとエラーになる
-  titles: Vec<&'a str>,
-  menu: Vec<Box<dyn View<B>>>,
+  debug_screen: Console,
   selected_menu_index: usize,
 }
 
-impl<'a, B> App<'a, B>
-where
-  B: Backend,
-{
-  pub fn new() -> App<'a, B> {
+impl App {
+  pub fn new() -> App {
     App {
       should_quit: false,
       debug_mode: false,
-      debug_screen: Box::new(Console::new()),
-      titles: vec!["status", "hoge"],
-      menu: vec![Box::new(Status::new()), Box::new(Status::new())],
+      debug_screen: Console::new(),
       selected_menu_index: 0,
     }
   }
 
-  pub fn draw(&mut self, f: &mut Frame<B>) {
+  pub fn draw<B: tui::backend::Backend>(&mut self, f: &mut Frame<B>) {
     // debug
     let chunk = if self.debug_mode {
       let chunks = Layout::default()
@@ -83,8 +71,7 @@ where
     let chunks = Layout::default()
       .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
       .split(chunk);
-    let titles = self
-      .titles
+    let titles = vec!["status", "hoge"]
       .iter()
       .map(|t| Spans::from(Span::styled(*t, Style::default().fg(Color::Green))))
       .collect();
@@ -147,4 +134,12 @@ where
     }
     self.menu[self.selected_menu_index].on_entered();
   }
+}
+
+struct TabMenu {
+  status: Status,
+}
+
+impl TabMenu {
+  pub fn draw<B: tui::backend::Backend>(&mut self, f: &mut Frame<B>) {}
 }
